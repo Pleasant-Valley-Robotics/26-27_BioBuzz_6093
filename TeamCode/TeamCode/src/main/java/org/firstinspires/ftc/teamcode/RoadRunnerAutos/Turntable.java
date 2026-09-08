@@ -1,0 +1,152 @@
+package org.firstinspires.ftc.teamcode.RoadRunnerAutos;
+
+import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+public class Turntable {
+
+    private Servo indexServo = null;
+
+    private final double [] positions = {.169, 0.511, .849};
+
+    private int positionId = 1;
+    private int currentNumBalls = 0;
+    private IndexColors[] turntableBallStatus = new IndexColors[3];
+
+
+    public enum IndexColors {
+        PURPLE,
+        GREEN
+    }
+
+
+
+    public Turntable(HardwareMap hardwareMap) {
+        indexServo = hardwareMap.get(Servo.class, "index");
+    }
+
+    public void turnLeft() {
+        positionId++;
+        updatePosition();
+
+        IndexColors temp = turntableBallStatus[turntableBallStatus.length - 1];
+
+        for (int i = turntableBallStatus.length - 1; i > 0; i--) {
+            turntableBallStatus[i] = turntableBallStatus[i - 1];
+        }
+
+        turntableBallStatus[0] = temp;
+    }
+
+    public void turnRight() {
+        positionId--;
+        updatePosition();
+
+        IndexColors temp = turntableBallStatus[0];
+
+        for (int i = 0; i < turntableBallStatus.length - 1; i++) {
+            turntableBallStatus[i] = turntableBallStatus[i + 1];
+        }
+
+        turntableBallStatus[turntableBallStatus.length - 1] = temp;
+    }
+
+    public void turnToPosition(int id) {
+        int timesToTurn = id - positionId;
+        for (int i = 0; i < Math.abs(timesToTurn); i++) {
+            if (timesToTurn > 0) {
+                turnLeft();
+            } else {
+                turnRight();
+            }
+        }
+    }
+
+    public void extraRange(boolean stop) {
+        if (!stop) {
+            if (positionId == 2) {
+                indexServo.setPosition(.95);
+            } else if (positionId == 0) {
+                indexServo.setPosition(0.05);
+            }
+        } else {
+            updatePosition();
+        }
+    }
+
+
+    public void addBall(int index, IndexColors type) {
+        if (turntableBallStatus[index] == type) {
+            return;
+        }           
+        turntableBallStatus[index] = type;
+        currentNumBalls++;
+    }
+
+    public void removeBall(int index) {
+        turntableBallStatus[index] = null;
+        currentNumBalls--;
+    }
+
+    public int countGreen() {
+        int count = 0;
+        for (IndexColors pos : turntableBallStatus) {
+            if (pos == IndexColors.GREEN) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int countPurple() {
+        int count = 0;
+        for (IndexColors pos : turntableBallStatus) {
+            if (pos == IndexColors.PURPLE) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+
+    public int findIndexOf(IndexColors type) {
+        for (int i = 0; i < turntableBallStatus.length; i++) {
+            if (turntableBallStatus[i] == type) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    public int getNumBalls() {return currentNumBalls;}
+    public int getPositionId() {return positionId;}
+
+    public IndexColors getBallAt(int index) {return turntableBallStatus[index];}
+
+    public void updatePosition() {
+        while (positionId < 0) positionId += positions.length;
+        while (positionId > positions.length - 1) positionId -= positions.length;
+
+        indexServo.setPosition(positions[positionId]);
+    }
+
+    public void clear() {
+        turntableBallStatus[0] = null;
+        turntableBallStatus[1] = null;
+        turntableBallStatus[2] = null;
+        currentNumBalls = 0;
+
+    }
+
+    @Override
+    public String toString() {
+        String output = "";
+        for (int i = 0; i < turntableBallStatus.length; i++) {
+            output += "\nPosition " + i + ": " + turntableBallStatus[i];
+        }
+
+        return output;
+    }
+
+}
