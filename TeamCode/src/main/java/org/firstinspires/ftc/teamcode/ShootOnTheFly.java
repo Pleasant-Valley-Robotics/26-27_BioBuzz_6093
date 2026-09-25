@@ -7,7 +7,9 @@ import com.pedropathing.math.Velocity;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -25,11 +27,14 @@ public class ShootOnTheFly extends OpMode {
     private final Pose GOAL_POSE = new Pose(11.8 / 12, 135.7 / 12); // x=129.7 for red
     private boolean motorOn = false;
     private boolean autoLocking = false;
+    private boolean slowMode = false;
     private Servo flickerServo;
     private DcMotorEx shooter;
+    private  DcMotorEx shooter2;
 
     private Follower follower;
     private Turntable turnable;
+    public double eTime;
 
 
 
@@ -41,58 +46,87 @@ public class ShootOnTheFly extends OpMode {
         turnable = new Turntable(hardwareMap);
         flickerServo = hardwareMap.get(Servo.class, "flicker");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void loop() {
-        // Drive or hold automatically tries to resist movement when sticks are idle
-        double rotate;
-
-        // Update the follower to get a new position
-        follower.update();
-
         Pose robotPoseFeet = toFeet(follower.pose());
         Velocity robotVelocityFeet = toFeetPerSecond(follower.velocity());
 
         Pose adjustedTarget = getMovingShotTarget(robotPoseFeet, robotVelocityFeet);
 
-        double adjustedVelocity = getBallVelocity(calculateDistance(robotPoseFeet, adjustedTarget));
+        double distance = calculateDistance(robotPoseFeet, adjustedTarget);
+        double adjustedVelocity = getBallVelocity(distance);
         double motorSpeed = getLaunchTPS(adjustedVelocity);
         double adjustedAngle = Math.atan2(
                 adjustedTarget.y() - robotPoseFeet.y(),
                 adjustedTarget.x() - robotPoseFeet.x()
         );
 
-        if (gamepad1.aWasPressed()) {motorOn = !motorOn;}
-        if (gamepad1.xWasPressed()) {autoLocking = !autoLocking;}
-        if (gamepad1.dpadRightWasPressed()) {turnable.turnRight();}
-        if (gamepad1.dpadLeftWasPressed()) {turnable.turnLeft();}
-        if (gamepad1.dpadUpWasPressed()) {
+        slowMode = gamepad1.left_trigger_pressed;
+        if (gamepad1.aWasPressed()) {motorOn = !motorOn;} // Motor on
+        if (gamepad1.xWasPressed()) {autoLocking = !autoLocking;} // Autolocking
+        if (gamepad1.dpadRightWasPressed()) {turnable.turnRight();} // Turntable right
+        if (gamepad1.dpadLeftWasPressed()) {turnable.turnLeft();} // Turntable left
+        if (gamepad1.dpadUpWasPressed()) { // Flicker up
             flickerServo.setPosition( 0.38);}
-        if (gamepad1.dpadDownWasPressed()) {flickerServo.setPosition(0.43);}
+        if (gamepad1.dpadDownWasPressed()) {flickerServo.setPosition(0.43);} // Flicker down
+        if (gamepad1.yWasPressed()) {follower.setPose(new Pose(0, 0));} // Reset pose
 
-        if (motorOn) {shooter.setVelocity(motorSpeed);}
+        if (motorOn) {
+            shooter.setVelocity(motorSpeed);
+            shooter2.setVelocity(motorSpeed);
+        } else {
+            shooter.setVelocity(0);
+            shooter2.setVelocity(0);
+        }
+
+
+
+        double rotate;
+
         if (autoLocking) {
             rotate = turnToAngle(adjustedAngle, follower.pose().heading());
         } else {
             rotate = -gamepad1.right_stick_x;
         }
 
+        double forward = -gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x;
+
+        if (slowMode) {
+            forward *= .35;
+            strafe *= .35;
+            rotate *=.35;
+
+        }
+
         ManualDrive.driveOrHold(follower,
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
+                forward,
+                strafe,
                 rotate);
 
+        telemetry.addData("Distance (inches)", distance * 12);
+        telemetry.addData("Estimated time", eTime);
         telemetry.addData("Adjusted Velocity", adjustedVelocity);
         telemetry.addData("Adjusted Angle", adjustedAngle);
         telemetry.addData("Motor Speed", motorSpeed);
         telemetry.addData("Current Position", follower.pose());
+        telemetry.addData("Current Velocity", follower.velocity());
         telemetry.addData("Target Position", GOAL_POSE);
+        telemetry.addData("Calculated Target Position", adjustedTarget);
+        telemetry.update();
 
+        follower.update();
     }
 
     public double getLaunchTPS(double velocity) {
-        double rpms =  (velocity * 120) / Math.PI * 0.314961;
-        return (rpms / 60) * 28;
+        double rpms =  (velocity * 120) / (Math.PI * 0.314961);
+        return (rpms * 28) / 60;
+        //return rpms;
     }
 
     Pose getMovingShotTarget(Pose robotPose, Velocity robotVelocity) {
@@ -116,7 +150,7 @@ public class ShootOnTheFly extends OpMode {
             launchVelocity = getBallVelocity(distance);
             time = calculateTime(distance, launchVelocity);
         }
-
+        eTime = time;
         return new Pose(virtualX, virtualY);
     }
 
