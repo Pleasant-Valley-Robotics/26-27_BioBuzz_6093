@@ -24,16 +24,19 @@ public class ShootOnTheFly extends OpMode {
     private final double GRAVITY = 32.1740; // Feet
     private final double LAUNCH_HEIGHT = .75; // Feet
     private final double LAUNCH_ANGLE = Math.toRadians(55);
-    private final Pose GOAL_POSE = new Pose(11.8 / 12, 135.7 / 12); // x=129.7 for red
+    private final Pose GOAL_POSE = new Pose(132 / 12, 135.7 / 12); // x=129.7 for red
     private boolean motorOn = false;
     private boolean autoLocking = false;
     private boolean slowMode = false;
+    private boolean intakeOn = false;
     private Servo flickerServo;
     private DcMotorEx shooter;
     private  DcMotorEx shooter2;
+    private DcMotorEx intake;
 
     private Follower follower;
     private Turntable turnable;
+
     public double eTime;
 
 
@@ -47,9 +50,11 @@ public class ShootOnTheFly extends OpMode {
         flickerServo = hardwareMap.get(Servo.class, "flicker");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
         shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void loop() {
@@ -60,7 +65,7 @@ public class ShootOnTheFly extends OpMode {
 
         double distance = calculateDistance(robotPoseFeet, adjustedTarget);
         double adjustedVelocity = getBallVelocity(distance);
-        double motorSpeed = getLaunchTPS(adjustedVelocity);
+        double motorSpeed = getLaunchFromDist(distance);
         double adjustedAngle = Math.atan2(
                 adjustedTarget.y() - robotPoseFeet.y(),
                 adjustedTarget.x() - robotPoseFeet.x()
@@ -69,6 +74,7 @@ public class ShootOnTheFly extends OpMode {
         slowMode = gamepad1.left_trigger_pressed;
         if (gamepad1.aWasPressed()) {motorOn = !motorOn;} // Motor on
         if (gamepad1.xWasPressed()) {autoLocking = !autoLocking;} // Autolocking
+        if (gamepad1.bWasPressed()) {intakeOn = !intakeOn;}
         if (gamepad1.dpadRightWasPressed()) {turnable.turnRight();} // Turntable right
         if (gamepad1.dpadLeftWasPressed()) {turnable.turnLeft();} // Turntable left
         if (gamepad1.dpadUpWasPressed()) { // Flicker up
@@ -103,6 +109,11 @@ public class ShootOnTheFly extends OpMode {
             rotate *=.35;
 
         }
+        if (intakeOn) {
+            intake.setPower(-1);
+        } else {
+            intake.setPower(0);
+        }
 
         ManualDrive.driveOrHold(follower,
                 forward,
@@ -121,6 +132,18 @@ public class ShootOnTheFly extends OpMode {
         telemetry.update();
 
         follower.update();
+    }
+
+    public double getLaunchFromDist(double distance) {
+        distance = distance * 12;
+        int flyWheelSpeed = (int)(
+                -2.4804513026335e-5d * Math.pow(distance, 4)
+                        + 0.010590941043216d * Math.pow(distance, 3)
+                        - 1.6100991405497d * Math.pow(distance, 2)
+                        + 105.30647877339d * distance
+                        - 1189.7462646363);
+
+        return flyWheelSpeed;
     }
 
     public double getLaunchTPS(double velocity) {
