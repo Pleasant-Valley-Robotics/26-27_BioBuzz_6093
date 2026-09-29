@@ -70,7 +70,7 @@ public class TeleopExample extends OpMode {
         // Code here runs as fast as possible until you pres stop on the control hub
         // Here you would get button presses, calculate motor power, read sensor data, etc.
         if (gamepad1.y) {
-            imu.resetYaw():
+            imu.resetYaw();
         }
 
         if (gamepad1.left_bumper) {
