@@ -18,7 +18,7 @@ public class AutoExample extends LinearOpMode {
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
-    static final double COUNTS_PER_MOTOR_REV  =
+    static final double COUNTS_PER_MOTOR_REV  = 0;
 
     public void runOpMode() {
         // This code will run once when you press init
