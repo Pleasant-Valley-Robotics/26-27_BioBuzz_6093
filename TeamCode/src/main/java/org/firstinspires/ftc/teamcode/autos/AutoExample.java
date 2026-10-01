@@ -69,7 +69,16 @@ public class AutoExample extends LinearOpMode {
 
         waitForStart();
 
-        
+        shooterMotor.setPower(1.0);
+        windmillServo.setPower(1.0);
+        sleep(10000);
+        shooterMotor.setPower(0.0);
+        windmillServo.setPower(0.0);
+
+        telemetry.addData("Shoot1", "Complete");
+        telemetry.update();
+        sleep(1000);
+
         while (opModeInInit()) {
             // This code runs repeatedly while the opmode is in init waiting for start
         }
