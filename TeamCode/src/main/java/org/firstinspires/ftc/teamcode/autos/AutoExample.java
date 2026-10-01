@@ -75,20 +75,59 @@ public class AutoExample extends LinearOpMode {
         shooterMotor.setPower(0.0);
         windmillServo.setPower(0.0);
 
+        encoderDrive(DRIVE_SPEED, 5, 5, 3.0); // Forward 5 inches
+
         telemetry.addData("Shoot1", "Complete");
         telemetry.update();
         sleep(1000);
-
-        while (opModeInInit()) {
-            // This code runs repeatedly while the opmode is in init waiting for start
-        }
-
-        // This code will run once when you press start
-
-        while (opModeIsActive()) {
-            // This code will run repeatedly until someone presses stop
-        }
-
     }
 
+    public void encoderDrive(double speed, double leftInches, double rightInches, double timeouts) {
+        int newLeftTarget;
+        int newRightTarget;
+
+        if (opModeIsActive()) {
+            newLeftTarget = BLDrive.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
+            newRightTarget = BRDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+            BLDrive.setTargetPosition(newLeftTarget);
+            FLDrive.setTargetPosition(newLeftTarget);
+            BRDrive.setTargetPosition(newRightTarget);
+            FRDrive.setTargetPosition(newRightTarget);
+
+            BLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+            BLDrive.setPower(Math.abs(speed));
+            BRDrive.setPower(Math.abs(speed));
+            FLDrive.setPower(Math.abs(speed));
+            FRDrive.setPower(Math.abs(speed));
+
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeouts) &&
+                    (FLDrive.isBusy() && FRDrive.isBusy())) {
+
+                telemetry.addData("Currently at",  "%7d : %7d : %7d : %7d",
+                        FLDrive.getCurrentPosition(),
+                        BLDrive.getCurrentPosition(),
+                        FRDrive.getCurrentPosition(),
+                        BRDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            BRDrive.setPower(0.0);
+            FRDrive.setPower(0.0);
+            FLDrive.setPower(0.0);
+            BLDrive.setPower(0.0);
+
+            BRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            BLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(250);   // optional pause after each move.
+        }
+    }
 }
