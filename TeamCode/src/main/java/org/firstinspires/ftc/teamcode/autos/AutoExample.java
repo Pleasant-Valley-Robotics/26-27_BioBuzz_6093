@@ -18,7 +18,12 @@ public class AutoExample extends LinearOpMode {
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
-    static final double COUNTS_PER_MOTOR_REV  = 0;
+    static final double COUNTS_PER_MOTOR_REV = 28;
+    static final double DRIVE_GEAR_REDUCTION = 1.0;
+    static final double WHEEL_DIAMETER_INCHES = 4.09448818898;
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double DRIVE_SPEED = 0.8;
+    static final double TURN_SPEED = 0.7;
 
     public void runOpMode() {
         // This code will run once when you press init
@@ -55,6 +60,16 @@ public class AutoExample extends LinearOpMode {
         shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        telemetry.addData("Starting at",  "%7d : %7d : %7d : %7d",
+                     FLDrive.getCurrentPosition(),
+                     BLDrive.getCurrentPosition(),
+                     FRDrive.getCurrentPosition(),
+                     BRDrive.getCurrentPosition());
+        telemetry.update();
+
+        waitForStart();
+
+        
         while (opModeInInit()) {
             // This code runs repeatedly while the opmode is in init waiting for start
         }
