@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+// sets up motors, servos, and imu for teleop
 @TeleOp(name="KitBot Teleop")
 public class TeleopExample extends OpMode {
 
@@ -26,7 +27,7 @@ public class TeleopExample extends OpMode {
     private CRServo windmillServo = null;
     IMU imu;
 
-
+    // sets up everything before game starts
     public void init() {
         // Code here only runs once
         // Here you define motors, sensors, set up subsystems, etc.
@@ -66,6 +67,7 @@ public class TeleopExample extends OpMode {
         imu.initialize(new IMU.Parameters(orientationOnRobot));
     }
 
+    // does actions in game
     public void loop() {
         // Code here runs as fast as possible until you pres stop on the control hub
         // Here you would get button presses, calculate motor power, read sensor data, etc.
@@ -110,6 +112,7 @@ public class TeleopExample extends OpMode {
         }
     }
 
+    // math for teleop
     private void driveFieldRelative(double forward, double right, double rotate) {
         // First, convert direction being asked to drive to polar coordinates
         double theta = Math.atan2(forward, right);

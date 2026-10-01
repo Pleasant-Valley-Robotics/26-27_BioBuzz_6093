@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+// sets up motors and servos for auto
 @Autonomous(name="KitBot Auto")
 public class AutoExample extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
@@ -25,6 +26,7 @@ public class AutoExample extends LinearOpMode {
     static final double DRIVE_SPEED = 0.8;
     static final double TURN_SPEED = 0.7;
 
+    // sets up everything and does actions in game
     public void runOpMode() {
         // This code will run once when you press init
         // (set your subsystems and motors here)
@@ -82,6 +84,7 @@ public class AutoExample extends LinearOpMode {
         sleep(1000);
     }
 
+    // math for auto
     public void encoderDrive(double speed, double leftInches, double rightInches, double timeouts) {
         int newLeftTarget;
         int newRightTarget;
