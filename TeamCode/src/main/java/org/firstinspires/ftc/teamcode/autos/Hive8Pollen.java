@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // sets up motors and servos for auto
-@Autonomous(name="KitBot Auto")
-public class AutoExample extends LinearOpMode {
+@Autonomous(name="KitBot Auto 1.5 Tip")
+public class Hive8Pollen extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FLDrive = null;
     private DcMotor BLDrive = null;
@@ -78,6 +78,14 @@ public class AutoExample extends LinearOpMode {
         windmillServo.setPower(0.0);
 
         encoderDrive(DRIVE_SPEED, 5, 5, 3.0); // Forward 5 inches
+        encoderDrive(DRIVE_SPEED, -18.06, 18.06, 3.0); // Turn Left
+
+        intakeMotor.setPower(1.0);
+        leftIntakeServo.setPower(1.0);
+        rightIntakeServo.setPower(1.0);
+
+        encoderStrafe(DRIVE_SPEED, -5, -5, 3.0);
+        encoderDrive(DRIVE_SPEED, 46.5, 46.5, 5.0);
 
         telemetry.addData("Shoot1", "Complete");
         telemetry.update();
@@ -106,6 +114,55 @@ public class AutoExample extends LinearOpMode {
             BLDrive.setPower(Math.abs(speed));
             BRDrive.setPower(Math.abs(speed));
             FLDrive.setPower(Math.abs(speed));
+            FRDrive.setPower(Math.abs(speed));
+
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeouts) &&
+                    (FLDrive.isBusy() && FRDrive.isBusy())) {
+
+                telemetry.addData("Currently at",  "%7d : %7d : %7d : %7d",
+                        FLDrive.getCurrentPosition(),
+                        BLDrive.getCurrentPosition(),
+                        FRDrive.getCurrentPosition(),
+                        BRDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            BRDrive.setPower(0.0);
+            FRDrive.setPower(0.0);
+            FLDrive.setPower(0.0);
+            BLDrive.setPower(0.0);
+
+            BRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            BLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(250);   // optional pause after each move.
+        }
+    }
+
+    public void encoderStrafe(double speed, double leftInches, double rightInches, double timeouts) {
+        int newLeftTarget;
+        int newRightTarget;
+
+        if (opModeIsActive()) {
+            newLeftTarget = BLDrive.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
+            newRightTarget = BRDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+            BLDrive.setTargetPosition(newLeftTarget);
+            FLDrive.setTargetPosition(newLeftTarget);
+            BRDrive.setTargetPosition(newRightTarget);
+            FRDrive.setTargetPosition(newRightTarget);
+
+            BLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            BRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FLDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            FRDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+            BLDrive.setPower(-Math.abs(speed));
+            BRDrive.setPower(Math.abs(speed));
+            FLDrive.setPower(-Math.abs(speed));
             FRDrive.setPower(Math.abs(speed));
 
             while (opModeIsActive() &&

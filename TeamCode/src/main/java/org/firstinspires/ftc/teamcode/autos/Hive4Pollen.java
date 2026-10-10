@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // sets up motors and servos for auto
-@Autonomous(name="KitBot Auto")
-public class Hive1Tip extends LinearOpMode {
+@Autonomous(name="KitBot Auto 1 Tip")
+public class Hive4Pollen extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor FLDrive = null;
     private DcMotor BLDrive = null;

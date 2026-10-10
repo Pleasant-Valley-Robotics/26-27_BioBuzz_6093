@@ -154,8 +154,8 @@ public class TeleopExample extends OpMode {
         // When a young child is driving the robot, we may not want to allow full
         // speed.
         FLDrive.setPower(maxSpeed * (frontLeftPower / maxPower));
-        BLDrive.setPower(maxSpeed * (frontRightPower / maxPower));
-        FRDrive.setPower(maxSpeed * (backLeftPower / maxPower));
+        FRDrive.setPower(maxSpeed * (frontRightPower / maxPower));
+        BLDrive.setPower(maxSpeed * (backLeftPower / maxPower));
         BRDrive.setPower(maxSpeed * (backRightPower / maxPower));
     }
 }
