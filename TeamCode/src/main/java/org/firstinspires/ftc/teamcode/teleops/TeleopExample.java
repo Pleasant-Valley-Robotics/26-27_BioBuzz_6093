@@ -41,12 +41,12 @@ public class TeleopExample extends OpMode {
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
         windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
 
-        FLDrive.setDirection(DcMotor.Direction.REVERSE);
-        BLDrive.setDirection(DcMotor.Direction.REVERSE);
+        FLDrive.setDirection(DcMotor.Direction.FORWARD);
+        BLDrive.setDirection(DcMotor.Direction.FORWARD);
         FRDrive.setDirection(DcMotor.Direction.FORWARD);
         BRDrive.setDirection(DcMotor.Direction.FORWARD);
         shooterMotor.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
         FLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -76,25 +76,23 @@ public class TeleopExample extends OpMode {
         }
 
         if (gamepad1.left_bumper) {
-            drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        } else {
             driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        } else {
+            drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         }
 
         if (gamepad1.right_trigger_pressed) {
-            shooterMotor.setPower(1.0);
-            windmillServo.setPower(1.0);
+            windmillServo.setPower(-0.25);
         }
 
         if (gamepad1.left_trigger_pressed) {
-            shooterMotor.setPower(0.0);
             windmillServo.setPower(0.0);
         }
 
         if (gamepad1.a) {
             intakeMotor.setPower(1.0);
             leftIntakeServo.setPower(1.0);
-            rightIntakeServo.setPower(-1.0);
+            rightIntakeServo.setPower(1.0);
         } else {
             intakeMotor.setPower(0.0);
             leftIntakeServo.setPower((0.0));
@@ -104,12 +102,26 @@ public class TeleopExample extends OpMode {
         if (gamepad1.b) {
             intakeMotor.setPower(-1.0);
             leftIntakeServo.setPower(-1.0);
-            rightIntakeServo.setPower(1.0);
+            rightIntakeServo.setPower(-1.0);
         } else {
             intakeMotor.setPower(0.0);
             leftIntakeServo.setPower((0.0));
             rightIntakeServo.setPower(0.0);
         }
+
+        if (gamepad1.y) {
+            shooterMotor.setPower(1.0);
+        }
+
+        if (gamepad1.x) {
+            shooterMotor.setPower(0.0);
+        }
+
+        telemetry.addData("FR Power", FRDrive.getPower());
+        telemetry.addData("FL Power", FLDrive.getPower());
+        telemetry.addData("BL Power", BLDrive.getPower());
+        telemetry.addData("BR Power", BRDrive.getPower());
+        telemetry.update();
     }
 
     // math for teleop

@@ -86,8 +86,9 @@ public class Hive8Pollen extends LinearOpMode {
 
         encoderStrafe(DRIVE_SPEED, -5, -5, 3.0);
         encoderDrive(DRIVE_SPEED, 46.5, 46.5, 5.0);
-
-        telemetry.addData("Shoot1", "Complete");
+        encoderDrive(DRIVE_SPEED, -46.5, -46.5, 5.0);
+        
+        telemetry.addData("Shoot&Intake1", "Complete");
         telemetry.update();
         sleep(1000);
     }
