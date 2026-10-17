@@ -72,7 +72,7 @@ public class Hive8Pollen extends LinearOpMode {
         waitForStart();
 
         shooterMotor.setPower(1.0);
-        windmillServo.setPower(1.0);
+        windmillServo.setPower(-0.25);
         sleep(10000);
         shooterMotor.setPower(0.0);
         windmillServo.setPower(0.0);
@@ -88,7 +88,7 @@ public class Hive8Pollen extends LinearOpMode {
         encoderDrive(DRIVE_SPEED, 46.5, 46.5, 5.0);
         encoderDrive(DRIVE_SPEED, -46.5, -46.5, 5.0);
         
-        telemetry.addData("Shoot&Intake1", "Complete");
+        telemetry.addData("Shoot & Intake", "Complete");
         telemetry.update();
         sleep(1000);
     }

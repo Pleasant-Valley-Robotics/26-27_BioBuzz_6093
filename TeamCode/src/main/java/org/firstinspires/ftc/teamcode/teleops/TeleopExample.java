@@ -121,6 +121,8 @@ public class TeleopExample extends OpMode {
         telemetry.addData("FL Power", FLDrive.getPower());
         telemetry.addData("BL Power", BLDrive.getPower());
         telemetry.addData("BR Power", BRDrive.getPower());
+        telemetry.addData("shooterMotor Power", shooterMotor.getPower());
+        telemetry.addData("Intake Power", intakeMotor.getPower());
         telemetry.update();
     }
 

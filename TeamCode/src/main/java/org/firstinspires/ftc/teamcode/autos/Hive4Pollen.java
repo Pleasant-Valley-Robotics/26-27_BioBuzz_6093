@@ -40,12 +40,12 @@ public class Hive4Pollen extends LinearOpMode {
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
         windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
 
-        FLDrive.setDirection(DcMotor.Direction.REVERSE);
-        BLDrive.setDirection(DcMotor.Direction.REVERSE);
+        FLDrive.setDirection(DcMotor.Direction.FORWARD);
+        BLDrive.setDirection(DcMotor.Direction.FORWARD);
         FRDrive.setDirection(DcMotor.Direction.FORWARD);
         BRDrive.setDirection(DcMotor.Direction.FORWARD);
         shooterMotor.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
         FLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BLDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -72,14 +72,14 @@ public class Hive4Pollen extends LinearOpMode {
         waitForStart();
 
         shooterMotor.setPower(1.0);
-        windmillServo.setPower(1.0);
+        windmillServo.setPower(-0.25);
         sleep(10000);
         shooterMotor.setPower(0.0);
         windmillServo.setPower(0.0);
 
         encoderDrive(DRIVE_SPEED, 5, 5, 3.0); // Forward 5 inches
 
-        telemetry.addData("Shoot1", "Complete");
+        telemetry.addData("Shoot & Leave", "Complete");
         telemetry.update();
         sleep(1000);
     }
