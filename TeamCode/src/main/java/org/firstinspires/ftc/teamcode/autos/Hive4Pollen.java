@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 // sets up motors and servos for auto
@@ -14,7 +15,7 @@ public class Hive4Pollen extends LinearOpMode {
     private DcMotor BLDrive = null;
     private DcMotor FRDrive = null;
     private DcMotor BRDrive = null;
-    private DcMotor shooterMotor = null;
+    private DcMotorEx shooterMotor = null;
     private DcMotor intakeMotor = null;
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
@@ -34,7 +35,7 @@ public class Hive4Pollen extends LinearOpMode {
         BLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
         FRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
         BRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
-        shooterMotor = hardwareMap.get(DcMotor.class, "shootMotor");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shootMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         leftIntakeServo = hardwareMap.get(CRServo.class, "leftIntakeServo");
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
@@ -71,7 +72,7 @@ public class Hive4Pollen extends LinearOpMode {
 
         waitForStart();
 
-        shooterMotor.setPower(1.0);
+        shooterMotor.setVelocity(1200);
         windmillServo.setPower(-0.25);
         sleep(10000);
         shooterMotor.setPower(0.0);

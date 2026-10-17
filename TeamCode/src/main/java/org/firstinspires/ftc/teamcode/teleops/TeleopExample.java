@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -20,11 +21,12 @@ public class TeleopExample extends OpMode {
     private DcMotor BLDrive = null;
     private DcMotor FRDrive = null;
     private DcMotor BRDrive = null;
-    private DcMotor shooterMotor = null;
+    private DcMotorEx shooterMotor = null;
     private DcMotor intakeMotor = null;
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
+    private int motorSpeed = 2000;
     IMU imu;
 
     // sets up everything before game starts
@@ -35,7 +37,7 @@ public class TeleopExample extends OpMode {
         BLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
         FRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
         BRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
-        shooterMotor = hardwareMap.get(DcMotor.class, "shootMotor");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shootMotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         leftIntakeServo = hardwareMap.get(CRServo.class, "leftIntakeServo");
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
@@ -46,7 +48,7 @@ public class TeleopExample extends OpMode {
         FRDrive.setDirection(DcMotor.Direction.FORWARD);
         BRDrive.setDirection(DcMotor.Direction.FORWARD);
         shooterMotor.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
 
         FLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -54,6 +56,14 @@ public class TeleopExample extends OpMode {
         BRDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        FLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        FRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        BRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         imu = hardwareMap.get(IMU.class, "imu");
         // This needs to be changed to match the orientation on your robot
@@ -88,6 +98,13 @@ public class TeleopExample extends OpMode {
         if (gamepad1.left_trigger_pressed) {
             windmillServo.setPower(0.0);
         }
+        if (gamepad1.dpadUpWasPressed()) {
+            motorSpeed += 50;
+        }
+
+        if (gamepad1.dpadDownWasPressed()) {
+            motorSpeed -= 50;
+        }
 
         if (gamepad1.a) {
             intakeMotor.setPower(1.0);
@@ -110,7 +127,7 @@ public class TeleopExample extends OpMode {
         }
 
         if (gamepad1.y) {
-            shooterMotor.setPower(1.0);
+            shooterMotor.setVelocity(motorSpeed);
         }
 
         if (gamepad1.x) {
@@ -121,7 +138,9 @@ public class TeleopExample extends OpMode {
         telemetry.addData("FL Power", FLDrive.getPower());
         telemetry.addData("BL Power", BLDrive.getPower());
         telemetry.addData("BR Power", BRDrive.getPower());
-        telemetry.addData("shooterMotor Power", shooterMotor.getPower());
+        telemetry.addData("Target TPS", motorSpeed);
+        telemetry.addData("shooterMotor TPS", shooterMotor.getVelocity());
+        telemetry.addData("shooterMotor RPM", (shooterMotor.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
         telemetry.update();
     }
