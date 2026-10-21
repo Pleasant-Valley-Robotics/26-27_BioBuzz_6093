@@ -72,13 +72,23 @@ public class Hive4Pollen extends LinearOpMode {
 
         waitForStart();
 
-        shooterMotor.setVelocity(1200);
-        windmillServo.setPower(-0.25);
-        sleep(10000);
+        shooterMotor.setVelocity(1215);
+        intakeMotor.setPower(0.0);
+        sleep(3000);
+        for (int i = 0; i<9; i++) {
+            windmillServo.setPower(-0.25);
+            sleep(90);
+            windmillServo.setPower(0.0);
+            sleep(2000);
+            if (i==5){
+                intakeMotor.setPower(-1.0);
+            }
+        }
+        sleep(3000);
         shooterMotor.setPower(0.0);
         windmillServo.setPower(0.0);
 
-        encoderDrive(DRIVE_SPEED, 5, 5, 3.0); // Forward 5 inches
+        encoderDrive(DRIVE_SPEED, -200, -200, 3.0); // backword 5 inches
 
         telemetry.addData("Shoot & Leave", "Complete");
         telemetry.update();

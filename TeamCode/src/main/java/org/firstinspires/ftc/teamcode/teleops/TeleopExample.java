@@ -108,21 +108,11 @@ public class TeleopExample extends OpMode {
 
         if (gamepad1.a) {
             intakeMotor.setPower(1.0);
-            leftIntakeServo.setPower(1.0);
-            rightIntakeServo.setPower(1.0);
-        } else {
-            intakeMotor.setPower(0.0);
-            leftIntakeServo.setPower((0.0));
-            rightIntakeServo.setPower(0.0);
-        }
-
-        if (gamepad1.b) {
-            intakeMotor.setPower(-1.0);
             leftIntakeServo.setPower(-1.0);
             rightIntakeServo.setPower(-1.0);
         } else {
             intakeMotor.setPower(0.0);
-            leftIntakeServo.setPower((0.0));
+            leftIntakeServo.setPower(0.0);
             rightIntakeServo.setPower(0.0);
         }
 
