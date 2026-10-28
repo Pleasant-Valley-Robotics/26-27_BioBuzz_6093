@@ -21,29 +21,28 @@ public class Constants {
         return new Follower(
                 new PinpointLocalizer(h, localizerConfig),
                 new Mecanum(h, drivetrainConfig),
-                new Foresight(foresightConfig)
+                //new Foresight(foresightConfig)
+                null
         );
     }
 
 
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
-        c.frontLeftName.set("frontLeftDrive");
-        c.frontRightName.set("frontRightDrive");
-        c.backLeftName.set("backLeftDrive");
-        c.backRightName.set("backRightDrive");
+        c.frontLeftName.set("FLDrive");
+        c.frontRightName.set("FRDrive");
+        c.backLeftName.set("BLDrive");
+        c.backRightName.set("BRDrive");
         c.frontLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-        c.frontRightDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.FORWARD);
-        c.backRightDirection.set(DcMotorSimple.Direction.REVERSE);
-
-        c.manualBrakeMode.set(true);
+        c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
     });
 
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(6.716166819174458);
-        c.yPodOffset.set(-1.6640546002725918);
+        c.xPodOffset.set(1.865309467465859);
+        c.yPodOffset.set(-2.602516835130106);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
