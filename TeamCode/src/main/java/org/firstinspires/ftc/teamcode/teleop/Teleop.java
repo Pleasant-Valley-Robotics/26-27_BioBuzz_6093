@@ -17,15 +17,11 @@ public class Teleop extends OpMode {
     private Follower follower;
     private DcMotorEx shootMotor;
     private DcMotorEx intakeMotor;
-
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
     private int motorSpeed = 1200;
-
-
-
-
+    private boolean intakeOn = false;
 
     public void init() {
         follower = Constants.create(hardwareMap);
@@ -47,48 +43,61 @@ public class Teleop extends OpMode {
     }
 
     public void loop() {
+        // Code here runs as fast as possible until you pres stop on the control hub
+        // Here you would get button presses, calculate motor power, read sensor data, etc.
         double forward = -gamepad1.left_stick_y;
         double strafe = -gamepad1.left_stick_x;
         double rotate = -gamepad1.right_stick_x;
-//
-//        slowmode = gamepad1.right_trigger_pressed;
-//
-//        if (slowmode) {
-//            forward *= 0.35;
-//            strafe *= 0.35;
-//            rotate *= 0.35;
-//        }
-//
-//        if (gamepad2.dpadUpWasPressed()) {flickerUp = true;}
-//        if (gamepad2.dpadDownWasPressed()) {flickerUp = false;}
-//
-//        if (gamepad2.bWasPressed()) {currentIndex = 0; flickerUp = false;}
-//        if (gamepad2.yWasPressed()) {currentIndex = 1; flickerUp = false;}
-//        if (gamepad2.xWasPressed()) {currentIndex = 2; flickerUp = false;}
-//        if (gamepad2.rightTriggerWasPressed()) {shooterActive = true;}
-//        if (gamepad2.leftTriggerWasPressed()) {shooterActive = false;}
-//
-//        if (shooterActive) {
-//            shootMotor.setVelocity(launchSpeed);
-//        } else {
-//            shootMotor.setPower(0);
-//        }
 
-//        if (flickerUp) {flickerServo.setPosition(FLICKER_UP_POSE);}
-//        else { flickerServo.setPosition(FLICKER_DOWN_POSE);}
-//        indexServo.setPosition(TURNTABLE_POSITIONS[currentIndex]);
-//        intake.setPower(gamepad2.left_stick_y);
+        if (gamepad1.right_trigger_pressed) {
+            windmillServo.setPower(-0.25);
+        }
+
+        if (gamepad1.left_trigger_pressed) {
+            windmillServo.setPower(0.0);
+        }
+        if (gamepad1.dpadUpWasPressed()) {
+            motorSpeed += 50;
+        }
+
+        if (gamepad1.dpadDownWasPressed()) {
+            motorSpeed -= 50;
+        }
+
+        if (gamepad1.a){
+            intakeOn=!intakeOn;
+        }
+
+        if (gamepad1.b){
+            intakeMotor.setPower(-1.0);
+            leftIntakeServo.setPower(1.0);
+            rightIntakeServo.setPower(1.0);
+        } else if(intakeOn) {
+            intakeMotor.setPower(1.0);
+            leftIntakeServo.setPower(-1.0);
+            rightIntakeServo.setPower(-1.0);
+        } else {
+            intakeMotor.setPower(0.0);
+            leftIntakeServo.setPower(0.0);
+            rightIntakeServo.setPower(0.0);
+        }
+
+        if (gamepad1.y) {
+            shootMotor.setVelocity(motorSpeed);
+        }
+
+        if (gamepad1.x) {
+            shootMotor.setPower(0.0);
+        }
 
         ManualDrive.driveOrHold(follower, forward, strafe, rotate);
 
+        telemetry.addData("Target TPS", motorSpeed);
+        telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
+        telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
+        telemetry.addData("Intake Power", intakeMotor.getPower());
+        telemetry.update();
 
-//        telemetry.addData("Runtime", getRuntime());
-//        telemetry.addData("Flicker up", flickerUp);
-//        telemetry.addData("Current turntable index", currentIndex);
-//        telemetry.addData("Launch Speed", launchSpeed);
-//        telemetry.addData("Slowmode active", slowmode);
-//        telemetry.addData("Shooter active", shooterActive);
-//        telemetry.update();
         follower.update();
     }
 }
