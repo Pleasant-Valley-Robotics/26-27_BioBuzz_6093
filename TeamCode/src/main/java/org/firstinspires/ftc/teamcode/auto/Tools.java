@@ -28,20 +28,4 @@ public class Tools {
     public Command sleep(long ms) {
         return waitMs(ms);
     }
-
-    public Command shootOnce(double power, Shooter s) {
-        return sequential()
-    }
-
-    public Command shootAll(double power, Shooter s) {
-
-    }
-
-    public Command intakeOn(Intake i) {
-
-    }
-
-    public Command intakeOff(Intake i) {
-
-    }
 }
