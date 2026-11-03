@@ -85,14 +85,14 @@ public class Teleop extends OpMode {
             shootMotor.setPower(0);
         }
 
-        ManualDrive.driveOrHold(follower, forward, strafe, rotate);
+        ManualDrive.fieldCentric(forward, strafe, rotate, follower.pose().heading());
 
         telemetry.addData("Target TPS", motorSpeed);
         telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
         telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
         telemetry.update();
-
+        
         follower.update();
     }
 }
