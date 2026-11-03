@@ -21,19 +21,23 @@ public class Teleop extends OpMode {
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
     private int motorSpeed = 1200;
-    private boolean intakeOn = false;
+    private boolean shooterOn = false;
 
     public void init() {
         follower = Constants.create(hardwareMap);
 
         shootMotor = hardwareMap.get(DcMotorEx.class, "shootMotor");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+
         leftIntakeServo = hardwareMap.get(CRServo.class, "leftIntakeServo");
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
         windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
 
         shootMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        leftIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         shootMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -49,45 +53,36 @@ public class Teleop extends OpMode {
         double strafe = -gamepad1.left_stick_x;
         double rotate = -gamepad1.right_stick_x;
 
-        if (gamepad1.right_trigger_pressed) {
-            windmillServo.setPower(-0.25);
+        if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
+            if (gamepad2.right_trigger_pressed) {
+                windmillServo.setPower(.25);
+            } else {
+                windmillServo.setPower(-.25);
+            }
+        } else {
+            windmillServo.setPower(gamepad2.right_stick_y);
         }
 
-        if (gamepad1.left_trigger_pressed) {
-            windmillServo.setPower(0.0);
-        }
-        if (gamepad1.dpadUpWasPressed()) {
+        if (gamepad2.dpadUpWasPressed()) {
             motorSpeed += 50;
         }
 
-        if (gamepad1.dpadDownWasPressed()) {
+        if (gamepad2.dpadDownWasPressed()) {
             motorSpeed -= 50;
         }
 
-        if (gamepad1.a){
-            intakeOn=!intakeOn;
+        intakeMotor.setPower(gamepad2.left_stick_y);
+        leftIntakeServo.setPower(gamepad2.left_stick_y);
+        rightIntakeServo.setPower(gamepad2.left_stick_y);
+
+        if (gamepad2.aWasPressed()) {
+            shooterOn = !shooterOn;
         }
 
-        if (gamepad1.b){
-            intakeMotor.setPower(-1.0);
-            leftIntakeServo.setPower(1.0);
-            rightIntakeServo.setPower(1.0);
-        } else if(intakeOn) {
-            intakeMotor.setPower(1.0);
-            leftIntakeServo.setPower(-1.0);
-            rightIntakeServo.setPower(-1.0);
-        } else {
-            intakeMotor.setPower(0.0);
-            leftIntakeServo.setPower(0.0);
-            rightIntakeServo.setPower(0.0);
-        }
-
-        if (gamepad1.y) {
+        if (shooterOn) {
             shootMotor.setVelocity(motorSpeed);
-        }
-
-        if (gamepad1.x) {
-            shootMotor.setPower(0.0);
+        } else {
+            shootMotor.setPower(0);
         }
 
         ManualDrive.driveOrHold(follower, forward, strafe, rotate);
