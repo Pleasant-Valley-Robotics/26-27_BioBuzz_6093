@@ -32,8 +32,8 @@ public class Intake {
 
     public void setPower(double power) {
         intakeMotor.setPower(power);
-        leftIntakeServo.setPower(power);
-        rightIntakeServo.setPower(power);
+        leftIntakeServo.setPower(-power);
+        rightIntakeServo.setPower(-power);
     }
 
     public void stop() {

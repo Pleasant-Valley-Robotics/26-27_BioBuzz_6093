@@ -18,6 +18,8 @@ public class Shooter {
     private final DcMotorEx shootMotor;
     private final CRServo windmillServo;
 
+    private Intake intake;
+
     public Shooter(HardwareMap h) {
         shootMotor = h.get(DcMotorEx.class, "shootMotor");
         windmillServo = h.get(CRServo.class, "windmillServo");
@@ -61,12 +63,23 @@ public class Shooter {
                 waitMs(2500),
                 repeat(
                         sequential(
-                                windmillSetPowerC(.25),
-                                waitMs(133),
+                                windmillSetPowerC(.11),
+                                waitMs(950),
                                 windmillSetPowerC(0),
-                                waitMs(500)
+                                waitMs(1300)
                         ), shots
                 ),
+                stopC()
+        );
+    }
+
+    public Command shootContinuous(int velocity) {
+        return sequential(
+                setVelocityC(velocity),
+                waitMs(2500),
+                windmillSetPowerC(.11),
+                waitMs(5000),
+                windmillSetPowerC(0),
                 stopC()
         );
     }

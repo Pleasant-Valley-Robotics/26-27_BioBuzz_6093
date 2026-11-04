@@ -20,7 +20,8 @@ public class Teleop extends OpMode {
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
-    private int motorSpeed = 1200;
+
+    private int motorSpeed = 1275;
     private boolean shooterOn = false;
 
     public void init() {
@@ -55,13 +56,14 @@ public class Teleop extends OpMode {
 
         if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
             if (gamepad2.right_trigger_pressed) {
-                windmillServo.setPower(.25);
+                windmillServo.setPower(-.15);
             } else {
-                windmillServo.setPower(-.25);
+                windmillServo.setPower(.15);
             }
         } else {
             windmillServo.setPower(gamepad2.right_stick_y);
         }
+
 
         if (gamepad2.dpadUpWasPressed()) {
             motorSpeed += 50;
@@ -85,14 +87,14 @@ public class Teleop extends OpMode {
             shootMotor.setPower(0);
         }
 
-        ManualDrive.fieldCentric(forward, strafe, rotate, follower.pose().heading());
+        ManualDrive.driveOrHold(follower, forward, strafe, rotate);
 
         telemetry.addData("Target TPS", motorSpeed);
         telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
         telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
         telemetry.update();
-        
+
         follower.update();
     }
 }
