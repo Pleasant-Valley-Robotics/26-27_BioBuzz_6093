@@ -34,10 +34,11 @@ public class HiveTip extends LinearOpMode {
     private final Pose point2 = poseFactory.of(27.577, 10.5, 180);
     private final Pose point3 = poseFactory.of(11, 10.5, 180);
     private final Pose point4 = poseFactory.of(34.3642, 106.4815, 90);
+    private final Pose point5 = poseFactory.of(34.3642, 20, 90);
+
     private final Pose point4Segment1Heading = poseFactory.of(34.3642, 106.4815, 180);
     private final Pose point4Segment2Start = poseFactory.of(34.3642, 106.4815, 180);
     private final Pose point4Segment2End = poseFactory.of(34.3642, 106.4815, 90);
-    private final Pose point5 = poseFactory.of(57.2197, 120.3128, 90);
     private final Pose point6 = poseFactory.of(12, 120.1262, 90);
 
     private final Pose park = poseFactory.of(16, 108, 270);
@@ -52,9 +53,6 @@ public class HiveTip extends LinearOpMode {
                 shooter.shootC(1275,4),
                 intake.stopC(),
                 follow(follower, path2()),
-                intake.setPowerC(1.0),
-                follow(follower, path3()),
-                intake.stopC(),
                 follow(follower, path4()),
                 follow(follower, path5())
 
@@ -96,17 +94,11 @@ public class HiveTip extends LinearOpMode {
         return Paths.line(start, shoot).constant(shoot).with(
                 Constants.foresightConfig.maxPathSpeed.at(0.3));
     }
-
     public Path path2() {
-        return Paths.line(shoot, point2).linear(shoot, point2);
-    }
-
-    public Path path3() {
-        return Paths.line(point2, point3).constant(point3).with(
-                Constants.foresightConfig.maxPathSpeed.at(0.1));
+        return Paths.line(shoot, point5).linear(shoot, point5);
     }
     public Path path4(){
-        return Paths.line(point3, point4).constant(point4);
+        return Paths.line(point5, point4).constant(point4);
     }
     public Path path5(){
         return Paths.line(point4, park).constant(park);
