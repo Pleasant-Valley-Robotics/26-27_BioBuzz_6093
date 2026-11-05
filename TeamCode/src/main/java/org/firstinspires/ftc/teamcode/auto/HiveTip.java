@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "Auto - 1 Tip", group = "Autonomous")
+@Autonomous(name = "THIS ONE JESSE --->>>>> Auto - 1 Tip", group = "Autonomous")
 public class HiveTip extends LinearOpMode {
 
     private Intake intake;
