@@ -63,8 +63,8 @@ public class Shooter {
                 waitMs(2500),
                 repeat(
                         sequential(
-                                windmillSetPowerC(.11),
-                                waitMs(950),
+                                windmillSetPowerC(-0.15),
+                                waitMs(1150),
                                 windmillSetPowerC(0),
                                 waitMs(1300)
                         ), shots
@@ -77,7 +77,7 @@ public class Shooter {
         return sequential(
                 setVelocityC(velocity),
                 waitMs(2500),
-                windmillSetPowerC(.11),
+                windmillSetPowerC(-0.11),
                 waitMs(5000),
                 windmillSetPowerC(0),
                 stopC()

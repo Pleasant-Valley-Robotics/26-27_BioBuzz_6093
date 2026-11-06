@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-@Autonomous(name = "THIS ONE JESSE --->>>>> Auto - 1 Tip", group = "Autonomous")
+@Autonomous(name = "Auto - 1 Tip", group = "Autonomous")
 public class HiveTip extends LinearOpMode {
 
     private Intake intake;
@@ -33,15 +33,15 @@ public class HiveTip extends LinearOpMode {
     private final Pose point2Start = poseFactory.of(57.446, 26, 270);
     private final Pose point2 = poseFactory.of(27.577, 10.5, 180);
     private final Pose point3 = poseFactory.of(11, 10.5, 180);
-    private final Pose point4 = poseFactory.of(34.3642, 106.4815, 90);
-    private final Pose point5 = poseFactory.of(34.3642, 20, 90);
+    private final Pose point4 = poseFactory.of(34.3642, 96, 270);
+    private final Pose point5 = poseFactory.of(34.3642, 31, 270);
 
     private final Pose point4Segment1Heading = poseFactory.of(34.3642, 106.4815, 180);
     private final Pose point4Segment2Start = poseFactory.of(34.3642, 106.4815, 180);
     private final Pose point4Segment2End = poseFactory.of(34.3642, 106.4815, 90);
     private final Pose point6 = poseFactory.of(12, 120.1262, 90);
 
-    private final Pose park = poseFactory.of(16, 108, 270);
+    private final Pose park = poseFactory.of(16, 96, 270);
 
 
 
