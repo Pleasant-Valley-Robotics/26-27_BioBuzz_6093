@@ -62,9 +62,9 @@ public class CompTeleop extends OpMode {
 
         if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
             if (gamepad2.right_trigger_pressed) {
-                windmillServo.setPower(-0.15);
+                windmillServo.setPower(0.5);
             } else {
-                windmillServo.setPower(0.15);
+                windmillServo.setPower(-0.5);
             }
         } else {
             windmillServo.setPower(gamepad2.right_stick_y);
@@ -88,7 +88,7 @@ public class CompTeleop extends OpMode {
 
         if (shooterValue==1) {
             shootMotor.setVelocity(motorSpeed);
-            if (Math.abs(shootMotor.getVelocity() - motorSpeed) < 50) {
+            if (Math.abs(shootMotor.getVelocity() - motorSpeed) < 80) {
                 light.setPosition(.5);
             } else {
                 light.setPosition(.3);
@@ -106,11 +106,7 @@ public class CompTeleop extends OpMode {
             strafe *= .35;
             rotate *= .35;
         }
-        if (gamepad1.right_trigger_pressed) {
-            ManualDrive.driveOrHold(follower, forward, strafe, rotate);
-        } else {
-            driveFieldRelative(forward, strafe, rotate);
-        }
+        ManualDrive.driveOrHold(follower, forward, strafe, rotate);
 
         telemetry.addData("Target TPS", motorSpeed);
         telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
