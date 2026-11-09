@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!-- Note: the actual manifest file used in your APK merges this file with contributions
-     from the modules on which your app depends (such as FtcRobotController, etc).
-     So it won't ultimately be as empty as it might here appear to be :-) -->
+    <application>
 
-<!-- The package name here determines the package for your R class and your BuildConfig class -->
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <application/>
+        <!-- 1. Explicitly defines the PermissionValidatorWrapper activity -->
+        <activity
+            android:name="org.firstinspires.ftc.robotcontroller.internal.PermissionValidatorWrapper"
+            android:exported="true" />
+
+        <!-- 2. Explicitly defines the Main FtcRobotControllerActivity activity -->
+        <activity
+            android:name="org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
 </manifest>
