@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-
 @TeleOp(name="THIS ONE JESSE --->>>>> Teleop for comp")
 public class CompTeleop extends OpMode {
     private Follower follower;
@@ -27,6 +27,14 @@ public class CompTeleop extends OpMode {
 
     private int motorSpeed = 1275;
     private int shooterValue = 0;
+    public static double p = 0;
+    public static double i = 0;
+    public static double d = 0;
+    public static double f= 0;
+    private int count = 0;
+
+    public static double currentSpeed = 0;
+    private boolean swapColors = true;
 
     public void init() {
         follower = Constants.create(hardwareMap);
@@ -85,22 +93,29 @@ public class CompTeleop extends OpMode {
         if (gamepad2.bWasPressed()) {
             shooterValue = -1;
         }
-
+        if (gamepad2.yWasPressed()) {
+            swapColors = !swapColors;
+        }
         if (shooterValue==1) {
             shootMotor.setVelocity(motorSpeed);
             if (Math.abs(shootMotor.getVelocity() - motorSpeed) < 80) {
-                light.setPosition(.5);
+                if (swapColors) {
+                    light.setPosition(.3);
+                } else {
+                    light.setPosition(0);
+                }
             } else {
-                light.setPosition(.3);
+                count++;
+                light.setPosition(0);
             }
         } else if (shooterValue==-1) {
-            shootMotor.setVelocity(-200);
+            shootMotor.setVelocity(-600);
             light.setPosition(.7);
         } else {
             shootMotor.setPower(0);
             light.setPosition(0);
         }
-
+        currentSpeed = shootMotor.getVelocity();
         if (gamepad1.left_trigger_pressed) {
             forward *= .35;
             strafe *= .35;
@@ -112,6 +127,7 @@ public class CompTeleop extends OpMode {
         telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
         telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
+        telemetry.addData("Light on", swapColors);
         telemetry.update();
 
         follower.update();
