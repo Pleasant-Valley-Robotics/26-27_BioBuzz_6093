@@ -51,16 +51,6 @@ public class Shooter {
         lastVelocity = velocity;
     }
 
-    public double getBallVelocity(double distance) {
-
-    }
-
-
-
-    public int calculateNeededTPS() {
-        return 0;
-    }
-
     public void updateLight(boolean active, boolean swapColor) {
         if (active) {
             if (lastVelocity < 0) {
