@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 @Configurable
 @TeleOp(name="THIS ONE JESSE --->>>>> Teleop for comp")
@@ -28,20 +29,16 @@ public class CompTeleop extends OpMode {
     private PanelsTelemetry panelsTelemetry = PanelsTelemetry.INSTANCE;
     private PanelsField panelsField = PanelsField.INSTANCE;
     private Follower follower;
-    private DcMotorEx shootMotor;
+    private Shooter shooter;
     private DcMotorEx intakeMotor;
     private CRServo leftIntakeServo = null;
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
-    private Servo light;
     private IMU imu;
 
     private static int motorSpeed = 1275;
     private int shooterValue = 0;
-    public static double p = 70;
-    public static double i = 0.075;
-    public static double d = 1.5;
-    public static double f= 12;
+    private boolean lightActive = false;
     private ElapsedTime runtime = new ElapsedTime();
 
     private boolean swapColors = true;
@@ -52,24 +49,20 @@ public class CompTeleop extends OpMode {
     public void init() {
         runtime.reset();
         follower = Constants.create(hardwareMap);
+        shooter = new Shooter(hardwareMap);
 
-        shootMotor = hardwareMap.get(DcMotorEx.class, "shootMotor");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         imu = hardwareMap.get(IMU.class, "imu");
 
         leftIntakeServo = hardwareMap.get(CRServo.class, "leftIntakeServo");
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
-        windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
-        light = hardwareMap.get(Servo.class, "light");
 
-        shootMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         leftIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
         rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        shootMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         intakeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
@@ -78,7 +71,6 @@ public class CompTeleop extends OpMode {
     }
 
     public void loop() {
-        shootMotor.setVelocityPIDFCoefficients(p, i, d, f);
         // Code here runs as fast as possible until you pres stop on the control hub
         // Here you would get button presses, calculate motor power, read sensor data, etc.
         double forward = -gamepad1.left_stick_y;
@@ -113,23 +105,16 @@ public class CompTeleop extends OpMode {
         if (gamepad2.yWasPressed()) {
             swapColors = !swapColors;
         }
-        if (shooterValue==1) {
-            shootMotor.setVelocity(motorSpeed);
-            if (Math.abs(shootMotor.getVelocity() - motorSpeed) < 80) {
-                if (swapColors) {
-                    light.setPosition(.3);
-                } else {
-                    light.setPosition(0);
-                }
-            } else {
-                light.setPosition(0);
-            }
-        } else if (shooterValue==-1) {
-            shootMotor.setVelocity(-600);
-            light.setPosition(.7);
+
+        if (shooterValue == 1) {
+            shooter.setVelocity(motorSpeed);
+            lightActive = true;
+        } else if (shooterValue == -1) {
+            shooter.setVelocity(-600);
+            lightActive = true;
         } else {
-            shootMotor.setPower(0);
-            light.setPosition(0);
+            shooter.setVelocity(0);
+            lightActive = false;
         }
 
         if (gamepad1.xWasPressed()) {
@@ -157,15 +142,14 @@ public class CompTeleop extends OpMode {
             ManualDrive.driveOrHold(follower, forward, strafe, rotate);
         }
 
-
+        shooter.updateLight(lightActive, swapColors);
 
         telemetry.addData("Runtime", runtime);
         telemetry.addData("Target TPS", motorSpeed);
-        telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
-        telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
+        telemetry.addData("shooterMotor TPS", shooter.getVelocity());
+        telemetry.addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
         telemetry.addData("Light on", swapColors);
-        telemetry.addData("Applied PIDF Coefficients", shootMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
         telemetry.addData("Position", follower.pose());
         telemetry.addData("Heading (degrees)", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Rotate", rotate);
@@ -173,15 +157,9 @@ public class CompTeleop extends OpMode {
         telemetry.update();
 
 
-        panelsTelemetry.getFtcTelemetry().addData("P Value", p);
-        panelsTelemetry.getFtcTelemetry().addData("I Value", i);
-        panelsTelemetry.getFtcTelemetry().addData("D Value", d);
-        panelsTelemetry.getFtcTelemetry().addData("F Value", f);
-
-
         panelsTelemetry.getFtcTelemetry().addData("Target TPS", motorSpeed);
-        panelsTelemetry.getFtcTelemetry().addData("Current TPS", shootMotor.getVelocity());
-        panelsTelemetry.getFtcTelemetry().addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
+        panelsTelemetry.getFtcTelemetry().addData("Current TPS", shooter.getVelocity());
+        panelsTelemetry.getFtcTelemetry().addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
 
 
         panelsTelemetry.getFtcTelemetry().update();
