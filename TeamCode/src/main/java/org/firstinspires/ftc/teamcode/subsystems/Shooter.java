@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.field.PanelsField;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -49,13 +50,12 @@ public class Shooter {
         shootMotor.setVelocity(velocity);
         lastVelocity = velocity;
     }
-    public double calculateCurrentVelocity() {
-        
+
+    public double getBallVelocity(double distance) {
+
     }
 
-    public double calculateNeededVelocity() {
-        return 0;
-    }
+
 
     public int calculateNeededTPS() {
         return 0;
