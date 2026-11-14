@@ -17,4 +17,13 @@ public class MathTools {
     public static double calculateDistance(Pose p1, Pose p2) {
         return Math.sqrt(Math.pow(p1.x() - p2.x(), 2) + Math.pow(p1.y() - p2.y(), 2));
     }
+
+    public static double calculateNeededTPS(double distance) {
+        return (
+                -0.0038306138 * Math.pow(distance, 3) +
+                        0.7851981352 * Math.pow(distance, 2) +
+                        -45.1134421134 * distance +
+                        2055.5011655012
+                );
+    }
 }

@@ -24,7 +24,7 @@ public class Intake {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftIntakeServo.setDirection(DcMotorSimple.Direction.FORWARD);
         rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

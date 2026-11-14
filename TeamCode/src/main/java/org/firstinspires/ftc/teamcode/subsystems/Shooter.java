@@ -33,7 +33,7 @@ public class Shooter {
 
         shootMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shootMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        windmillServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        windmillServo.setDirection(DcMotorSimple.Direction.FORWARD);
         shootMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         shootMotor.setVelocityPIDFCoefficients(70, 0.075, 1.5, 12);
@@ -50,6 +50,7 @@ public class Shooter {
         shootMotor.setVelocity(velocity);
         lastVelocity = velocity;
     }
+
 
     public void updateLight(boolean active, boolean swapColor) {
         if (active) {

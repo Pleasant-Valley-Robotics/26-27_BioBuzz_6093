@@ -37,11 +37,10 @@ public class CompTeleop extends OpMode {
     private IMU imu;
     private Vision vision;
 
-    public static int motorSpeed = 1275;
     public static double limelightServoAngle = .5;
     private final PanelsTelemetry panelsTelemetry = PanelsTelemetry.INSTANCE;
     private final PanelsField panelsField = PanelsField.INSTANCE;
-
+    private Pose holdPose = new Pose(0, 0);
     private int shooterValue = 0;
 
     private boolean lightActive = false;
@@ -72,6 +71,9 @@ public class CompTeleop extends OpMode {
         double strafe = -gamepad1.left_stick_x;
         double rotate = -gamepad1.right_stick_x;
 
+        double distance =  MathTools.calculateDistance(follower.pose(), DriveTools.chooseTarget(follower));
+        double motorSpeed = MathTools.calculateNeededTPS(distance);
+
         vision.setServoPosition(limelightServoAngle);
 
         if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
@@ -80,6 +82,8 @@ public class CompTeleop extends OpMode {
             } else {
                 shooter.windmillSetPower(-0.5);
             }
+        } else {
+            shooter.windmillSetPower(0);
         }
 
         if (gamepad2.xWasPressed()) {shooterValue = 1;}
@@ -88,7 +92,7 @@ public class CompTeleop extends OpMode {
         if (gamepad2.yWasPressed()) {swapColors = !swapColors;}
 
         if (shooterValue == 1) {
-            shooter.setVelocity(motorSpeed);
+            shooter.setVelocity((int)motorSpeed);
             lightActive = true;
         } else if (shooterValue == -1) {
             shooter.setVelocity(-600);
@@ -102,7 +106,7 @@ public class CompTeleop extends OpMode {
 
 
         if (gamepad1.xWasPressed()) {autoLockingOn = !autoLockingOn;}
-        if (gamepad1.bWasPressed()) {follower.setHeading(0);}
+        if (gamepad1.bWasPressed()) {follower.setPose(new Pose(8.031, 8.89764, 0));}
 
         if (gamepad1.left_trigger_pressed) {
             forward *= .35;
@@ -112,7 +116,10 @@ public class CompTeleop extends OpMode {
 
         if (autoLockingOn) {
             if (gamepad1.right_trigger_pressed) {
-                follower.hold(new Pose(follower.pose().x(), follower.pose().y(), DriveTools.findAutoLockingAngle(follower)));
+                if (gamepad1.rightTriggerWasPressed()) {
+                    holdPose = follower.pose();
+                }
+                follower.hold(new Pose(holdPose.x(), holdPose.y(), DriveTools.findAutoLockingAngle(follower)));
             } else {
                 ManualDrive.driveOrHold(follower, forward, strafe,  DriveTools.findAutoLockPower(follower, DriveTools.findAutoLockingAngle(follower)));
             }
@@ -122,7 +129,6 @@ public class CompTeleop extends OpMode {
 
         shooter.updateLight(lightActive, swapColors);
 
-        double distance =  MathTools.calculateDistance(follower.pose(), DriveTools.chooseTarget(follower));
 
         telemetry.addData("Runtime", runtime);
         telemetry.addData("Target TPS", motorSpeed);
@@ -135,6 +141,8 @@ public class CompTeleop extends OpMode {
         telemetry.addData("Rotate", rotate);
         telemetry.addData("Auto locking", autoLockingOn);
         telemetry.addData("Distance to goal",distance);
+        telemetry.addData("Auto locking target ", DriveTools.autoLockingTarget);
+        telemetry.addData("Angle for auto locking", Math.toDegrees(DriveTools.findAutoLockingAngle(follower)));
         telemetry.addData("Needed velocity", MathTools.calculateNeededVelocity(distance));
         telemetry.update();
 

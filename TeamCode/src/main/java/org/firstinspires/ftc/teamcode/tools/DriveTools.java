@@ -8,30 +8,30 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DriveTools {
-    public static final Pose autolockingTargetB = new Pose(58, 50.75);
-    public static final Pose autolockingTargetF = new Pose(58, 90.75);
-    private static Pose autoLockingTarget = autolockingTargetB;
+    public static final Pose autolockingTargetB = new Pose(57.59, 54.5);
+    public static final Pose autolockingTargetF = new Pose(57.59, 87);
+    public static Pose autoLockingTarget = autolockingTargetB;
 
     public static Pose chooseTarget (Follower follower) {
         if (follower.pose().y() > 70.75) {
-            autoLockingTarget = autolockingTargetB;
-        } else {
             autoLockingTarget = autolockingTargetF;
+        } else {
+            autoLockingTarget = autolockingTargetB;
         }
         return autoLockingTarget;
     }
     public static double findAutoLockingAngle(Follower follower) {
 
 
-        double xDif = Math.abs(autoLockingTarget.x() - follower.pose().x());
-        double yDif = Math.abs(autoLockingTarget.y() - follower.pose().y());
+        double xDif = autoLockingTarget.x() - follower.pose().x();
+        double yDif = autoLockingTarget.y() - follower.pose().y();
 
         // Use tan-1 to get raw target heading before normalizing
         double rawTargetHeading = Math.atan2(yDif, xDif);
         // Normalize radians within -2(pi), 2(pi)
         // This shouldn't really be necessary as we normalize again later, but it doesn't hurt anything
         rawTargetHeading = AngleUnit.normalizeRadians(rawTargetHeading);
-        return AngleUnit.normalizeRadians(rawTargetHeading);
+        return AngleUnit.normalizeRadians(Math.PI + rawTargetHeading);
     }
 
     public static double findAutoLockPower(Follower follower, double targetHeading) {
