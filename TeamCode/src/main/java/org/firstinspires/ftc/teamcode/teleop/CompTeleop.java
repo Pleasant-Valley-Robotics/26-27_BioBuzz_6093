@@ -37,13 +37,14 @@ public class CompTeleop extends OpMode {
     private Intake intake;
     private IMU imu;
     private Vision vision;
-    public static int motorSpeed = 0;
+    public static int motorSpeed = 1240;
 
 
     private final PanelsTelemetry panelsTelemetry = PanelsTelemetry.INSTANCE;
     private final PanelsField panelsField = PanelsField.INSTANCE;
     private Pose holdPose = new Pose(0, 0);
     private int shooterValue = 0;
+
 
     private boolean lightActive = false;
     private boolean swapColors = true;
@@ -120,10 +121,10 @@ public class CompTeleop extends OpMode {
                 }
                 follower.hold(new Pose(holdPose.x(), holdPose.y(), DriveTools.findAutoLockingAngle(follower)));
             } else {
-                ManualDrive.driveOrHold(follower, forward, strafe,  DriveTools.findAutoLockPower(follower, vision, DriveTools.findAutoLockingAngle(follower)));
+                DriveTools.driveFieldRelative(follower, forward, -strafe,  DriveTools.findAutoLockPower(follower, vision, DriveTools.findAutoLockingAngle(follower)));
             }
         } else {
-            ManualDrive.driveOrHold(follower, forward, strafe, rotate);
+            DriveTools.driveFieldRelative(follower, forward, -strafe, rotate);
         }
 
         shooter.updateLight(lightActive, swapColors);

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.repeat;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
@@ -51,6 +52,9 @@ public class Shooter {
         lastVelocity = velocity;
     }
 
+    public void setLight(double power) {
+        light.setPosition(power);
+    }
 
     public void updateLight(boolean active, boolean swapColor) {
         if (active) {
@@ -107,6 +111,16 @@ public class Shooter {
                         ), shots
                 ),
                 stopC()
+        );
+    }
+
+    public Command shootAllC(int velocity) {
+        return sequential(
+                windmillSetPowerC(.5),
+                setVelocityC(velocity),
+                waitMs(2000),
+                windmillSetPowerC(0),
+                setVelocityC(0)
         );
     }
 

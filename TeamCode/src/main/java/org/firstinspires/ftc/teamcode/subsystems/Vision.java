@@ -64,8 +64,6 @@ public class Vision {
             return sum / count;
         }
         return -999999;
-
-
     }
 
     private boolean checkForValidAprilTag(int aprilTagID, int color, boolean far) {
