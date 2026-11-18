@@ -1,16 +1,21 @@
 package org.firstinspires.ftc.teamcode.tools;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
+@Configurable
 public class DriveTools {
     public static final Pose autolockingTargetB = new Pose(57.59, 54.5);
     public static final Pose autolockingTargetF = new Pose(57.59, 87);
     public static Pose autoLockingTarget = autolockingTargetB;
+    public static double kPLimelight = .05;
+    public static double kPOdometry = 1.0;
 
     public static Pose chooseTarget (Follower follower) {
         if (follower.pose().y() > 70.75) {
@@ -34,7 +39,14 @@ public class DriveTools {
         return AngleUnit.normalizeRadians(Math.PI + rawTargetHeading);
     }
 
-    public static double findAutoLockPower(Follower follower, double targetHeading) {
+    public static double findAutoLockPower(Follower follower, Vision vision, double targetHeading) {
+        double visionError = vision.findErrorForAutoLocking(Storage.color, (follower.pose().y() > 70.75));
+        if (visionError != -999999) {
+            double turnPower = kPLimelight * visionError;
+
+            return Math.max(-.2, Math.min(.2, turnPower)); // Set max turning speed
+        }
+
         double tolerance = 0.0; // Tolerance in radians
 
         double error = targetHeading - follower.pose().heading();
@@ -43,11 +55,10 @@ public class DriveTools {
 
         if (Math.abs(error) > tolerance) {
             // Only run while error is outside of tolerance
-            double kP = 1.0; // Modify to change P strength
-            double turnPower = kP * error;
+            double turnPower = kPOdometry * error;
 
 
-            return Math.max(-0.6, Math.min(0.6, turnPower)); // Set max turning speed
+            return Math.max(-.8, Math.min(.8, turnPower)); // Set max turning speed
         } else {
             // We are aligned, so command no turn.
             return 0.0;

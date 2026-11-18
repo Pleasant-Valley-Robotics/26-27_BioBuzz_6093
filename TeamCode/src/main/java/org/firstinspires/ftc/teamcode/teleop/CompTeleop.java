@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.tools.DriveTools;
 import org.firstinspires.ftc.teamcode.tools.MathTools;
+import org.firstinspires.ftc.teamcode.tools.Storage;
 
 @Configurable
 @TeleOp(name="THIS ONE JESSE --->>>>> Teleop for comp")
@@ -36,8 +37,9 @@ public class CompTeleop extends OpMode {
     private Intake intake;
     private IMU imu;
     private Vision vision;
+    public static int motorSpeed = 0;
 
-    public static double limelightServoAngle = .5;
+
     private final PanelsTelemetry panelsTelemetry = PanelsTelemetry.INSTANCE;
     private final PanelsField panelsField = PanelsField.INSTANCE;
     private Pose holdPose = new Pose(0, 0);
@@ -72,9 +74,6 @@ public class CompTeleop extends OpMode {
         double rotate = -gamepad1.right_stick_x;
 
         double distance =  MathTools.calculateDistance(follower.pose(), DriveTools.chooseTarget(follower));
-        double motorSpeed = MathTools.calculateNeededTPS(distance);
-
-        vision.setServoPosition(limelightServoAngle);
 
         if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
             if (gamepad2.right_trigger_pressed) {
@@ -121,7 +120,7 @@ public class CompTeleop extends OpMode {
                 }
                 follower.hold(new Pose(holdPose.x(), holdPose.y(), DriveTools.findAutoLockingAngle(follower)));
             } else {
-                ManualDrive.driveOrHold(follower, forward, strafe,  DriveTools.findAutoLockPower(follower, DriveTools.findAutoLockingAngle(follower)));
+                ManualDrive.driveOrHold(follower, forward, strafe,  DriveTools.findAutoLockPower(follower, vision, DriveTools.findAutoLockingAngle(follower)));
             }
         } else {
             ManualDrive.driveOrHold(follower, forward, strafe, rotate);
@@ -134,6 +133,7 @@ public class CompTeleop extends OpMode {
         telemetry.addData("Target TPS", motorSpeed);
         telemetry.addData("shooterMotor TPS", shooter.getVelocity());
         telemetry.addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
+        telemetry.addData("Servo position", vision.autoFindServoPosition(distance));
         telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("Light on", swapColors);
         telemetry.addData("Position", follower.pose());
