@@ -82,7 +82,12 @@ public class Shooter {
     }
 
 
-
+    public Command updateLightC(boolean active, boolean swapColor) {
+        return instant(() -> updateLight(active, swapColor));
+    }
+    public Command setLightC(double power) {
+        return instant(() ->setLight(power));
+    }
 
     public Command setVelocityC(int velocity) {
         return instant(() -> setVelocity(velocity));
@@ -114,10 +119,11 @@ public class Shooter {
         );
     }
 
-    public Command shootAllC(int velocity) {
+    public Command shootAllC(int velocity, int msToSpeedUp) {
         return sequential(
-                windmillSetPowerC(.5),
                 setVelocityC(velocity),
+                waitMs(msToSpeedUp),
+                windmillSetPowerC(.5),
                 waitMs(2000),
                 windmillSetPowerC(0),
                 setVelocityC(0)
