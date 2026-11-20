@@ -123,8 +123,8 @@ public class Shooter {
         return sequential(
                 setVelocityC(velocity),
                 waitMs(msToSpeedUp),
-                windmillSetPowerC(.5),
-                waitMs(2000),
+                windmillSetPowerC(.3),
+                waitMs(2750),
                 windmillSetPowerC(0),
                 setVelocityC(0)
         );

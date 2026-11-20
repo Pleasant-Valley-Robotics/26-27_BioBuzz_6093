@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.conditional;
-import static com.pedropathing.ivy.commands.Commands.infinite;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
@@ -14,7 +13,6 @@ import static com.pedropathing.ivy.groups.Groups.repeat;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
@@ -44,17 +42,20 @@ public class Shoot16 extends LinearOpMode {
     private Shooter shooter;
     private Vision vision;
     private Pose currentTarget;
-    private final Pose start = (Storage.close) ?  new Pose(0, 0): new Pose(0, 0); // UPDATE THIS
-    private final Pose shootFar = new Pose(56.911, 125.529, Math.toRadians(90));
-    private final Pose shootClose = new Pose(60.15, 10.77, Math.toRadians(270));
-    private final Pose safeZoneClose = new Pose(44.5, 23.87, Math.toRadians(90));
-    private final Pose safeZoneFar = new Pose(56.05, 107.43, Math.toRadians(90));
-    private final Pose flowerHorizontal = new Pose(53.415, 127.618, Math.toRadians(90));
-    private final Pose gardenStart = new Pose(0, 0); // UPDATE THIS
-    private final Pose gardenEnd = new Pose(0, 0); // UPDATE THIS
-    private final Pose flowerAlliance = new Pose(0, 0); // UPDATE THIS
-    private final Pose park = new Pose(16, 96, Math.toRadians(270)); // UPDATE THIS
-
+    private final Pose start = (Storage.close) ?  new Pose(62.077, 7.989, Math.toRadians(270)): new Pose(64.960, 130.321, Math.toRadians(90)); // UPDATE THIS
+    private final Pose shootFar = new Pose(61, 125.529, Math.toRadians(90));
+    private final Pose shootClose = new Pose(61, 12.276, Math.toRadians(270));
+    private final Pose transitionPose = new Pose(64, 68.948, Math.toRadians(0));
+    private final Pose safeZoneClose1 = new Pose(63.5, 30, Math.toRadians(90));
+    private final Pose safeZoneClose2 = new Pose(30, 30, Math.toRadians(90));
+    private final Pose safeZoneFar = new Pose(63.5, 102.18, Math.toRadians(90));
+    private final Pose cornerFar = new Pose(36.359, 110.289, Math.toRadians(90));
+    private final Pose cornerClose = new Pose(34.334, 29.3689, Math.toRadians(270));
+    private final Pose flowerHorizontal = new Pose(56.8, 128.2, Math.toRadians(100));
+    private final Pose gardenStart = new Pose(22.724, 11.704, Math.toRadians(230)); // UPDATE THIS
+    private final Pose gardenEnd = new Pose(10.917, 6.642, Math.toRadians(180)); // UPDATE THIS
+    private final Pose flowerAlliance = new Pose(14.213, 51.4251, Math.toRadians(180)); // UPDATE THIS
+    private final Pose park = new Pose(14.474, 86.953, Math.toRadians(230)); // UPDATE THIS
 
     private final AutoTools.Obstacle CLOSE_DANGER_ZONE = new AutoTools.Obstacle(
             new ArrayList<>(List.of(new Pose(46.674, 36.187), new Pose(71.004, 32.986),
@@ -76,20 +77,19 @@ public class Shoot16 extends LinearOpMode {
         return parallel(
             sequential(
                 deadline(
-                        waitMs(26000), // 26 Seconds to finish otherwise park runs early
+                        waitMs(24500), // 26 Seconds to finish otherwise park runs early
                         sequential(
-                            shooter.setVelocityC(1240),
+                            shooter.setVelocityC(1255),
                             conditional(
                                     () -> Storage.close, // Drive to position based off start
-                                    sequential(
-                                        instant(() -> currentTarget = shootClose),
-                                        waitMs(5000)
-                                    ),
+                                    instant(() -> currentTarget = shootClose),
                                     instant(() -> currentTarget = shootFar)
                             ),
 
+                            waitMs(Storage.MSWaitForTip),
                             lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
-
+                            waitMs(20),
+                            intake.setPowerC(1.0),
 
                             race(
                                     waitUntil(() -> !hasBalls), // Wait until we fire all our balls
@@ -101,39 +101,41 @@ public class Shoot16 extends LinearOpMode {
                             lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), gardenStart))),
                             intake.setPowerC(1),
                             // Slow down so balls don't go flying
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), gardenEnd).with(Constants.foresightConfig.maxPathSpeed.at(0.3)))),
+                            deadline(
+                                    waitMs(3000),
+                                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), gardenEnd).with(Constants.foresightConfig.maxPathSpeed.at(0.3))))
+                                ),
                             intake.setPowerC(0),
                             setHasBalls(true),
 
-                            shooter.setVelocityC(1240),
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
+
+                            preShoot(1255),
                             race(
                                     waitUntil(() -> !hasBalls),
                                     Groups.loop(lazy(this::shootOrReposition))
                             ),
 
 
-                            instant(this::swapTarget),
+                            // Go to flower X
+                            lazy(this::intakeFlowerX),
+                            setHasBalls(true),
 
-                            // Go to flower Y
+                            shooter.setVelocityC(1255),
+                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
+                            intake.setPowerC(1.0),
+
+                            race(
+                                    waitUntil(() -> !hasBalls),
+                                    Groups.loop(lazy(this::shootOrReposition))
+                            ),
+
+                            //Go to flower Y,
                             lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), flowerAlliance))),
                             lazy(this::intakeFlowerY),
                             setHasBalls(true),
 
-                            shooter.setVelocityC(1240),
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
-                            race(
-                                    waitUntil(() -> !hasBalls),
-                                    Groups.loop(lazy(this::shootOrReposition))
-                            ),
+                            preShoot(1255),
 
-                            //Go to flower X,
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), flowerHorizontal))),
-                            lazy(this::intakeFlowerX),
-                            setHasBalls(true),
-
-                            shooter.setVelocityC(1240),
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
                             race(
                                     waitUntil(() -> !hasBalls),
                                     Groups.loop(lazy(this::shootOrReposition))
@@ -143,14 +145,7 @@ public class Shoot16 extends LinearOpMode {
 
                 shooter.stopC(),
                 intake.stopC(),
-                conditional(
-                        this::inCollisionZone, // Check if we are in a collision zone
-                        sequential(
-                            lazy(() -> follow(follower, findSafety())), // If we are, go to a "safe" position first
-                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), park))) // Then park
-                        ),
-                        lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), park))) // Otherwise park right away
-                )
+                lazy(this::goPark)
             ),
             parallel(
                 Groups.loop(shooter.updateLightC(!repositioning, false)), // Constantly update light unless blinking logic is happening
@@ -199,12 +194,26 @@ public class Shoot16 extends LinearOpMode {
         return !(vision.findErrorForAutoLocking(Storage.color, (follower.pose().y() > 70.75)) == -999999);
     }
 
-    private Path findSafety() {
+    private Command findSafety() {
         if (CLOSE_DANGER_ZONE.pointInBounds(follower.pose())) {
-            return AutoTools.buildPathLinearLine(follower.pose(), safeZoneClose);
+            return
+                sequential(
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), safeZoneClose1))),
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), safeZoneClose2)))
+                );
+        } else if (FAR_DANGER_ZONE.pointInBounds(follower.pose())) {
+            return lazy (() ->follow(follower, AutoTools.buildPathLinearLine(follower.pose(), safeZoneFar)));
         } else {
-            return AutoTools.buildPathLinearLine(follower.pose(), safeZoneFar);
+            return lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), park)));
         }
+    }
+
+    private Command goPark() {
+        return sequential(
+                waitMs(20),
+                findSafety(),
+                lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), park)))
+        );
     }
 
 
@@ -213,30 +222,32 @@ public class Shoot16 extends LinearOpMode {
         return sequential(
             setRepositioningC(true),
             deadline(
-                    waitMs(3000), // 3 Seconds to shoot all
+                    waitMs(500), // 3 Seconds to shoot all
                     sequential(
                         waitUntil(
                                 this::hiveUp // Wait until limelight sees april tags
                         ),
-                        setRepositioningC(false),
-                        shooter.shootAllC(1240, 0),
-                        setHasBalls(false)
-
+                        setRepositioningC(false)
                     )
             ),
             conditional(
-                    () -> repositioning,
-                    parallel(
-                            shooter.stopC(),
-                            blink(),
-                            sequential(
-                                instant(this::swapTarget),
-                                lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
-                                setRepositioningC(false)
-                            )
-                        ),
+                () -> repositioning,
+                parallel(
+                        blink(),
+                        sequential(
+                            instant(this::swapTarget),
+                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), transitionPose))),
+                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
+                            setRepositioningC(false)
+                        )
+                    ),
 
-            shooter.stopC()
+                sequential(
+                    shooter.shootAllC(1240, 0),
+                    shooter.stopC(),
+                    intake.stopC(),
+                    setHasBalls(false)
+                )
             )
         );
     }
@@ -250,15 +261,16 @@ public class Shoot16 extends LinearOpMode {
     }
 
     private Command intakeFlowerX() {
-        Pose startPose = follower.pose();
         return sequential(
            intake.setPowerC(1),
-            repeat(
-                    sequential(
-                            follow(follower, AutoTools.buildPathLinearLine(startPose, new Pose(startPose.x() + 5.3, startPose.y()))),
-                                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), startPose)))
+                    deadline(
+                        waitMs(2500),
+                        lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), flowerHorizontal))
                     ),
-                    4
+                    deadline(
+                        waitMs(50),
+                        lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), new Pose(flowerHorizontal.x() + 2, flowerHorizontal.y(), flowerHorizontal.heading()))))
+                    )
             ),
             intake.setPowerC(0)
         );
@@ -270,7 +282,7 @@ public class Shoot16 extends LinearOpMode {
                 intake.setPowerC(1),
                 repeat(
                         sequential(
-                                follow(follower, AutoTools.buildPathLinearLine(startPose, new Pose(startPose.x(), startPose.y() + 5.3))),
+                                follow(follower, AutoTools.buildPathLinearLine(startPose, new Pose(startPose.x(), startPose.y() + 5.3, startPose.heading()))),
                                 lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), startPose)))
                         ),
                         4
@@ -298,7 +310,30 @@ public class Shoot16 extends LinearOpMode {
         }
     }
 
+    private Command preShoot(int velocity) {
+        if (currentTarget == shootClose) {
+            return sequential(
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), cornerClose))),
+                    shooter.setVelocityC(velocity),
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), shootClose))),
+                    intake.setPowerC(1.0)
+            );
+        }
+        else {
+            return sequential(
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), cornerFar))),
+                    shooter.setVelocityC(velocity),
+                    lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), shootFar))),
+                    intake.setPowerC(1.0)
+            );
+        }
+    }
 
+
+
+    private Command error(String error) {
+        throw new RuntimeException(error);
+    }
 
 
 
