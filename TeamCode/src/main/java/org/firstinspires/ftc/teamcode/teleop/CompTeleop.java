@@ -37,7 +37,6 @@ public class CompTeleop extends OpMode {
     private Intake intake;
     private IMU imu;
     private Vision vision;
-    public static int motorSpeed = 1240;
 
 
     private final PanelsTelemetry panelsTelemetry = PanelsTelemetry.INSTANCE;
@@ -92,7 +91,7 @@ public class CompTeleop extends OpMode {
         if (gamepad2.yWasPressed()) {swapColors = !swapColors;}
 
         if (shooterValue == 1) {
-            shooter.setVelocity((int)motorSpeed);
+            shooter.setVelocity((int)MathTools.calculateNeededTPS(distance));
             lightActive = true;
         } else if (shooterValue == -1) {
             shooter.setVelocity(-600);
@@ -131,7 +130,7 @@ public class CompTeleop extends OpMode {
 
 
         telemetry.addData("Runtime", runtime);
-        telemetry.addData("Target TPS", motorSpeed);
+        telemetry.addData("Target TPS", MathTools.calculateNeededTPS(distance));
         telemetry.addData("shooterMotor TPS", shooter.getVelocity());
         telemetry.addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
         telemetry.addData("Servo position", vision.autoFindServoPosition(distance));
@@ -148,7 +147,7 @@ public class CompTeleop extends OpMode {
         telemetry.update();
 
 
-        panelsTelemetry.getFtcTelemetry().addData("Target TPS", motorSpeed);
+        panelsTelemetry.getFtcTelemetry().addData("Target TPS", MathTools.calculateNeededTPS(distance));
         panelsTelemetry.getFtcTelemetry().addData("Current TPS", shooter.getVelocity());
         panelsTelemetry.getFtcTelemetry().addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
         panelsTelemetry.getFtcTelemetry().addData("Distance to goal",distance);
