@@ -17,6 +17,7 @@ public class AutoSettings extends LinearOpMode {
             }
 
             if (gamepad1.aWasPressed()) {Storage.close = !Storage.close;}
+            if (gamepad1.yWasPressed()) {Storage.parkClose = !Storage.parkClose;}
             if (gamepad1.dpadUpWasPressed()) {Storage.MSWaitForTip += 1000;}
             if (gamepad1.dpadDownWasPressed()) {Storage.MSWaitForTip -= 1000;}
 
@@ -25,8 +26,11 @@ public class AutoSettings extends LinearOpMode {
             telemetry.addLine("         Press x to toggle");
             telemetry.addLine("Set auto is currently " + (Storage.close ? "on garden side" : "not garden side") + ".");
             telemetry.addLine("         Press a to toggle");
+            telemetry.addLine("Set park is currently " + (Storage.parkClose ? "on garden side" : "not garden side") + ".");
+            telemetry.addLine("         Press y to toggle");
             telemetry.addLine("Wait is currently " + Storage.MSWaitForTip + " milliseconds" + ".");
             telemetry.addLine("         Control with dPad");
+
             telemetry.update();
         }
     }

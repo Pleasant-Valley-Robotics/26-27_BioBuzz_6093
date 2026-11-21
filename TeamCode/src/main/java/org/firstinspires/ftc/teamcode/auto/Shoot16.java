@@ -46,8 +46,8 @@ public class Shoot16 extends LinearOpMode {
     private final Pose shootFar = new Pose(61, 125.529, Math.toRadians(90));
     private final Pose shootClose = new Pose(61, 12.276, Math.toRadians(270));
     private final Pose transitionPose = new Pose(64, 68.948, Math.toRadians(0));
-    private final Pose safeZoneClose1 = new Pose(63.5, 30, Math.toRadians(90));
-    private final Pose safeZoneClose2 = new Pose(30, 30, Math.toRadians(90));
+    private final Pose safeZoneClose1 = new Pose(63.5, 18, Math.toRadians(90));
+    private final Pose safeZoneClose2 = new Pose(30, 18, Math.toRadians(90));
     private final Pose safeZoneFar = new Pose(63.5, 102.18, Math.toRadians(90));
     private final Pose cornerFar = new Pose(36.359, 110.289, Math.toRadians(90));
     private final Pose cornerClose = new Pose(34.334, 29.3689, Math.toRadians(270));
@@ -55,7 +55,7 @@ public class Shoot16 extends LinearOpMode {
     private final Pose gardenStart = new Pose(22.724, 11.704, Math.toRadians(230)); // UPDATE THIS
     private final Pose gardenEnd = new Pose(10.917, 6.642, Math.toRadians(180)); // UPDATE THIS
     private final Pose flowerAlliance = new Pose(14.213, 51.4251, Math.toRadians(180)); // UPDATE THIS
-    private final Pose park = new Pose(14.474, 86.953, Math.toRadians(230)); // UPDATE THIS
+    private Pose park; // UPDATE THIS
 
     private final AutoTools.Obstacle CLOSE_DANGER_ZONE = new AutoTools.Obstacle(
             new ArrayList<>(List.of(new Pose(46.674, 36.187), new Pose(71.004, 32.986),
@@ -166,6 +166,12 @@ public class Shoot16 extends LinearOpMode {
         intake = new Intake(hardwareMap);
         shooter = new Shooter(hardwareMap);
 
+        if (Storage.parkClose) {
+            park =  new Pose(14.474, 86.953, Math.toRadians(230));
+        } else {
+            park = new Pose(19.376, 123.135, Math.toRadians(121.742));
+        }
+
         waitForStart();
         schedule(autoRoutine());
 
@@ -243,7 +249,7 @@ public class Shoot16 extends LinearOpMode {
                     ),
 
                 sequential(
-                    shooter.shootAllC(1240, 0),
+                    shooter.shootAllC(1255, 0),
                     shooter.stopC(),
                     intake.stopC(),
                     setHasBalls(false)
