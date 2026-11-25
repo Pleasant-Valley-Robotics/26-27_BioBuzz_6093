@@ -37,7 +37,7 @@ public class Shooter {
         windmillServo.setDirection(DcMotorSimple.Direction.FORWARD);
         shootMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shootMotor.setVelocityPIDFCoefficients(70, 0.075, 1.5, 12);
+        shootMotor.setVelocityPIDFCoefficients(90, 0.13, 0.5, 10.75);
     }
 
     public void setPIDFCoefficients(double p, double i, double d, double f) {

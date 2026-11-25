@@ -20,10 +20,10 @@ public class MathTools {
 
     public static double calculateNeededTPS(double distance) {
         return (
-                -0.0038306138 * Math.pow(distance, 3) +
-                        0.7851981352 * Math.pow(distance, 2) +
-                        -45.1134421134 * distance +
-                        2055.5011655012
-                );
+                (7.269819343 * Math.pow(10, -5)) * Math.pow(distance, 4) +
+                        (-0.0216330485) * Math.pow(distance, 3) +
+                        (2.337016932) * Math.pow(distance, 2) +
+                        (-104.6395725) * distance + 2949.474477
+        );
     }
 }

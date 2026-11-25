@@ -95,7 +95,6 @@ public class Shoot16 extends LinearOpMode {
                                     waitUntil(() -> !hasBalls), // Wait until we fire all our balls
                                     Groups.loop(lazy(this::shootOrReposition))
                             ),
-                            instant(this::swapTarget),
 
                             //intakeFromTheWall,
                             lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), gardenStart))),
@@ -108,8 +107,10 @@ public class Shoot16 extends LinearOpMode {
                             intake.setPowerC(0),
                             setHasBalls(true),
 
+                            shooter.setVelocityC(1255),
+                            lazy(() -> follow(follower, AutoTools.buildPathLinearLine(follower.pose(), currentTarget))),
+                            intake.setPowerC(1.0),
 
-                            preShoot(1255),
                             race(
                                     waitUntil(() -> !hasBalls),
                                     Groups.loop(lazy(this::shootOrReposition))
@@ -228,7 +229,7 @@ public class Shoot16 extends LinearOpMode {
         return sequential(
             setRepositioningC(true),
             deadline(
-                    waitMs(500), // 3 Seconds to shoot all
+                    waitMs(500), // 3 Seconds to recognize april tag
                     sequential(
                         waitUntil(
                                 this::hiveUp // Wait until limelight sees april tags

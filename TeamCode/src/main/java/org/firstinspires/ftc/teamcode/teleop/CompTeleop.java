@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.PanelsField;
 import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.pedropathing.drivetrain.Drivetrain;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
@@ -73,13 +74,15 @@ public class CompTeleop extends OpMode {
         double strafe = -gamepad1.left_stick_x;
         double rotate = -gamepad1.right_stick_x;
 
+
         double distance =  MathTools.calculateDistance(follower.pose(), DriveTools.chooseTarget(follower));
+        int shootSpeed = (int)Math.round(MathTools.calculateNeededTPS(distance));
 
         if (gamepad2.right_trigger_pressed || gamepad2.left_trigger_pressed) {
             if (gamepad2.right_trigger_pressed) {
-                shooter.windmillSetPower(0.5);
+                shooter.windmillSetPower(1.0);
             } else {
-                shooter.windmillSetPower(-0.5);
+                shooter.windmillSetPower(-1.0);
             }
         } else {
             shooter.windmillSetPower(0);
@@ -91,7 +94,7 @@ public class CompTeleop extends OpMode {
         if (gamepad2.yWasPressed()) {swapColors = !swapColors;}
 
         if (shooterValue == 1) {
-            shooter.setVelocity((int)MathTools.calculateNeededTPS(distance));
+            shooter.setVelocity(shootSpeed);
             lightActive = true;
         } else if (shooterValue == -1) {
             shooter.setVelocity(-600);
@@ -120,17 +123,17 @@ public class CompTeleop extends OpMode {
                 }
                 follower.hold(new Pose(holdPose.x(), holdPose.y(), DriveTools.findAutoLockingAngle(follower)));
             } else {
-                DriveTools.driveFieldRelative(follower, forward, -strafe,  DriveTools.findAutoLockPower(follower, vision, DriveTools.findAutoLockingAngle(follower)));
+                ManualDrive.driveOrHold(follower, forward, strafe,  DriveTools.findAutoLockPower(follower, vision, DriveTools.findAutoLockingAngle(follower)));
             }
         } else {
-            DriveTools.driveFieldRelative(follower, forward, -strafe, rotate);
+            ManualDrive.driveOrHold(follower, forward, strafe, rotate);
         }
 
         shooter.updateLight(lightActive, swapColors);
 
 
         telemetry.addData("Runtime", runtime);
-        telemetry.addData("Target TPS", MathTools.calculateNeededTPS(distance));
+        telemetry.addData("Target TPS", shootSpeed);
         telemetry.addData("shooterMotor TPS", shooter.getVelocity());
         telemetry.addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
         telemetry.addData("Servo position", vision.autoFindServoPosition(distance));
@@ -147,7 +150,7 @@ public class CompTeleop extends OpMode {
         telemetry.update();
 
 
-        panelsTelemetry.getFtcTelemetry().addData("Target TPS", MathTools.calculateNeededTPS(distance));
+        panelsTelemetry.getFtcTelemetry().addData("Target TPS", shootSpeed);
         panelsTelemetry.getFtcTelemetry().addData("Current TPS", shooter.getVelocity());
         panelsTelemetry.getFtcTelemetry().addData("shooterMotor RPM", (shooter.getVelocity()/26)*60);
         panelsTelemetry.getFtcTelemetry().addData("Distance to goal",distance);

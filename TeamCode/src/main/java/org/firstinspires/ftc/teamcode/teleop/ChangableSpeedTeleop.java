@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,9 +14,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.tools.DriveTools;
+
+import java.util.ArrayList;
 
 @TeleOp(name="Testing teleop with changeable speed")
-public class Teleop extends OpMode {
+public class ChangableSpeedTeleop extends OpMode {
     private Follower follower;
     private DcMotorEx shootMotor;
     private DcMotorEx intakeMotor;
@@ -24,6 +29,9 @@ public class Teleop extends OpMode {
     private CRServo windmillServo = null;
     private Servo light;
     private IMU imu;
+    private Vision vision;
+    private ArrayList<ShootPoint> shootPoints = new ArrayList<>();
+    private boolean autoLocking = false;
 
     private int motorSpeed = 1275;
     private boolean shooterOn = false;
@@ -39,6 +47,8 @@ public class Teleop extends OpMode {
         rightIntakeServo = hardwareMap.get(CRServo.class, "rightIntakeServo");
         windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
         light = hardwareMap.get(Servo.class, "light");
+
+        vision = new Vision(hardwareMap);
 
         shootMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -70,14 +80,18 @@ public class Teleop extends OpMode {
             windmillServo.setPower(gamepad2.right_stick_y);
         }
 
+        if (gamepad2.xWasPressed()) {
+            shootPoints.add(new ShootPoint(motorSpeed, follower.pose()));
+        }
 
         if (gamepad2.dpadUpWasPressed()) {
-            motorSpeed += 50;
+            motorSpeed += 10;
         }
 
         if (gamepad2.dpadDownWasPressed()) {
-            motorSpeed -= 50;
+            motorSpeed -= 10;
         }
+        if (gamepad1.bWasPressed()) {follower.setPose(new Pose(8.031, 8.89764, 0));}
 
         intakeMotor.setPower(gamepad2.left_stick_y);
         leftIntakeServo.setPower(gamepad2.left_stick_y);
@@ -98,22 +112,33 @@ public class Teleop extends OpMode {
             shootMotor.setPower(0);
             light.setPosition(0);
         }
+        if (gamepad1.aWasPressed()) {
+            autoLocking = !autoLocking;
+        }
 
         if (gamepad1.left_trigger_pressed) {
             forward *= .35;
             strafe *= .35;
             rotate *= .35;
         }
-        if (gamepad1.right_trigger_pressed) {
-            ManualDrive.driveOrHold(follower, forward, strafe, rotate);
-        } else {
-            driveFieldRelative(forward, strafe, rotate);
+
+        Pose target = DriveTools.chooseTarget(follower);
+
+        if (autoLocking) {
+            rotate = DriveTools.findAutoLockPower(follower, vision, target.heading());
         }
+
+
+
+        follower.manual(forward, strafe, rotate);
 
         telemetry.addData("Target TPS", motorSpeed);
         telemetry.addData("shooterMotor TPS", shootMotor.getVelocity());
+        telemetry.addData("Position", follower.pose());
         telemetry.addData("shooterMotor RPM", (shootMotor.getVelocity()/26)*60);
         telemetry.addData("Intake Power", intakeMotor.getPower());
+        telemetry.addData("target", target);
+        telemetry.addData("Shoot Points", shootPoints);
         telemetry.update();
 
         follower.update();
@@ -135,5 +160,15 @@ public class Teleop extends OpMode {
 
         // Finally, call the drive method with robot relative forward and right amounts
         ManualDrive.driveOrHold(follower, newForward, newRight, rotate);
+    }
+
+    private class ShootPoint {
+        public int speed;
+        public Pose pose;
+
+        public ShootPoint(int speed, Pose pose) {
+            this.speed = speed;
+            this.pose = pose;
+        }
     }
 }

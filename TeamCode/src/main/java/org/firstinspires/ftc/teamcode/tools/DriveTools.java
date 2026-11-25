@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 @Configurable
 public class DriveTools {
-    public static final Pose autolockingTargetB = new Pose(57.59, 54.5);
-    public static final Pose autolockingTargetF = new Pose(57.59, 87);
+    public static final Pose autolockingTargetB = new Pose(57.889, 53.442);
+    public static final Pose autolockingTargetF = new Pose(57.59, 88.058);
     public static Pose autoLockingTarget = autolockingTargetB;
     public static double kPLimelight = .05;
     public static double kPOdometry = 1.0;
@@ -81,6 +81,6 @@ public class DriveTools {
         double newRight = r * Math.cos(theta);
 
         // Finally, call the drive method with robot relative forward and right amounts
-        ManualDrive.driveOrHold(follower, newForward, -newRight, rotate);
+        follower.manual(newForward, -newRight, rotate); // CHANGE THIS BACK TO DRIVE OR HOLD
     }
 }
