@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tools;
 import com.pedropathing.math.Pose;
 
 public class MathTools {
+    // Tools for calculating distance and our needed shooting velocities
     private static final double LAUNCH_ANGLE = Math.toRadians(65.0); // IN RADIANS
     private static final double GOAL_HEIGHT = 59.55; // INCHES
     private static final double LAUNCH_HEIGHT = 7.0; // INCHES
@@ -15,10 +16,12 @@ public class MathTools {
     }
 
     public static double calculateDistance(Pose p1, Pose p2) {
+        // Return Euclidean distance between two points
         return Math.sqrt(Math.pow(p1.x() - p2.x(), 2) + Math.pow(p1.y() - p2.y(), 2));
     }
 
     public static double calculateNeededTPS(double distance) {
+        // This is just a quart function we found with a regression model
         return (
                 (7.269819343 * Math.pow(10, -5)) * Math.pow(distance, 4) +
                         (-0.0216330485) * Math.pow(distance, 3) +

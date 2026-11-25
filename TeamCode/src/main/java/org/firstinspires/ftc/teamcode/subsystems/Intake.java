@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 public class Intake {
+    // This class is pretty simple, not much of anything beyond basic setPower commands
     private final DcMotorEx intakeMotor;
     private final CRServo leftIntakeServo;
     private final CRServo rightIntakeServo;
@@ -23,30 +24,37 @@ public class Intake {
 
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Make sure we set our motor directions
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftIntakeServo.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightIntakeServo.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        // This is set as RUN_USING_ENCODER despite the fact that we don't have an encoder plugged into the intake motor
+        // This is pretty stupid, but it doesn't actually matter cause we only use setPower commands, not setVelocity commands
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void setPower(double power) {
         intakeMotor.setPower(power);
-        leftIntakeServo.setPower(-power);
-        rightIntakeServo.setPower(-power);
+        leftIntakeServo.setPower(power);
+        rightIntakeServo.setPower(power);
     }
 
     public void stop() {
         setPower(0);
     }
 
-    public Command setPowerC(double power) {
-        return instant(() ->
+    // Pedro pathing takes these things called commands to run autos.
+    // They're pretty annoying, especially because you end up with like 10 pairs of parenthesis at once and the IDE doesn't help at all
+    // However, you can't do anything other than drive without them in auto, so they are necessary
+    public Command setPowerC(double power) { // Returns an instant(). An instant command runs once normal function instantly.
+        return instant(() -> // Doing this lambda converts our java function into a pedro pathing command
                 setPower(power)
         );
     }
 
     public Command stopC() {
+        // When you don't need any parameters, you can do this::function.
         return instant(this::stop);
     }
     public double getPower() {return intakeMotor.getPower();}

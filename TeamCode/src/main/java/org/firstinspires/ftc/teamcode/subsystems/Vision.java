@@ -11,7 +11,8 @@ import java.util.List;
 
 @Configurable
 public class Vision {
-    private Servo limelightServo;
+    // Vision generally contains all of our cameras and our sensors
+    private Servo limelightServo; // Servo is included because it directly controls the limelight
     private Limelight3A limelight;
 
     public Vision(HardwareMap h) {
@@ -19,8 +20,11 @@ public class Vision {
         limelightServo.setDirection(Servo.Direction.REVERSE);
         limelight = h.get(Limelight3A.class, "limelight");
 
+        // Limelights can have different tasks, called pipelines.
+        // It generally takes about 20-50 ms to switch between these.
+        // Pipeline 0 just looks for april tags
         limelight.pipelineSwitch(0);
-        limelight.start();
+        limelight.start(); // Start looking
     }
 
     public void setServoPosition(double position) {
@@ -28,19 +32,22 @@ public class Vision {
     }
 
     public double autoFindServoPosition(double distance) {// Far should be true if we are targeting the far hive
+        // This is just an y = mx + b graph, where start is b and m is kP
         double kP = .004;
         double start = .59;
         double position = (distance * kP) + start;
-        setServoPosition(distance * kP + start);
+        setServoPosition(position);
         return position;
     }
 
     public double findErrorForAutoLocking(int color, boolean far) { // Far should be true if we are targeting the far hive
-        List<LLResultTypes.FiducialResult> aprilTags = limelight.getLatestResult().getFiducialResults();
-        double sum = 0;
-        int count = 0;
+        // This uses the limelight to find out how far away we are from being centered in the middle of two april tags
+        List<LLResultTypes.FiducialResult> aprilTags = limelight.getLatestResult().getFiducialResults(); // Start by finding all aprilTags
+        double sum = 0; // Sum is the sum of the error of our valid aprilTags
+        int count = 0; // Number of valid april tags
 
         for (int i = 0; i < aprilTags.size(); i++) {
+            // Skip any of the aprilTags that don't match our expected color and field position
             if (checkForValidAprilTag(aprilTags.get(i).getFiducialId(), color, far)) {
                 sum += aprilTags.get(i).getTargetXDegrees();
                 count++;
@@ -60,8 +67,8 @@ public class Vision {
         }  else if (validAprilTags.size() == 3){
 
         } else {  This would be at least 70 lines of code if we were to finish it, but instead we're cheating and doing the easy way*/
-        if (count == 2) {
-            return sum / count;
+        if (count == 2) { // We only want the two outer aprilTags. if there is only one, we return an obviously wrong value instead
+            return sum / count; // Return average
         }
         return -999999;
     }
@@ -69,7 +76,7 @@ public class Vision {
     private boolean checkForValidAprilTag(int aprilTagID, int color, boolean far) {
         if (color == 1) { // THIS IS REVERSED BECAUSE WE RESET BLUE TO RED ON BLUE SIDE
             if (!far) {
-                return (aprilTagID == 42 || 45 == aprilTagID);
+                return (aprilTagID == 42 || 45 == aprilTagID); // Only the two outer aprilTags
             } else {
                 return (aprilTagID == 38 || 41 == aprilTagID);
             }

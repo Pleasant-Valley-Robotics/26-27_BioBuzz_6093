@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoTools {
+    // List of obstacles on the red side
     public static final Obstacle RED_HIVE = new Obstacle(
             new ArrayList<>(List.of(new Pose(46, 50), new Pose(48.6, 50), new Pose(48.6, 91.4), new Pose(46, 91.4))));
     public static final Obstacle RED_ALLIANCE_FLOWER = new Obstacle(
@@ -19,16 +20,17 @@ public class AutoTools {
 
 
 
-    public static Path buildPathLinearLine(Pose p1, Pose p2) {
+    public static Path buildPathLinearLine(Pose p1, Pose p2) { // This builds a path between two points, and gets used all the time in autos
         return Paths.line(p1, p2).linear(p1, p2);
     }
 
     public static boolean checkForCollision(Pose p1, Pose p2, Obstacle o) {
         return true;
-    }
+    } // Not implemented
 
     public static class Obstacle {
-        private ArrayList<Pose> vertices = new ArrayList<>();
+        // An obstacle is a collection of vertices with the ability to tell you if a point is inside it
+        private ArrayList<Pose> vertices;
 
         public Obstacle(ArrayList<Pose> v) {
             vertices = v;
@@ -39,6 +41,10 @@ public class AutoTools {
         }
 
         public boolean pointInBounds(Pose p) {
+            // This was really annoying to make
+
+            // Basically, it uses raycasting to the right of a single point.
+            //  If there are an odd number of times is crosses the obstacles lines, it's inside the obstacle. Otherwise, its out
             if (vertices.size() < 3) return false;
 
             boolean inside = false;

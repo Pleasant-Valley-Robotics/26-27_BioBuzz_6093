@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 @TeleOp(name="Testing teleop with changeable speed")
 public class ChangableSpeedTeleop extends OpMode {
+    // THis is outdated, I don't feel like fixing it
+    // If you need a teleop with changeable testing speed, use panels on CompTeleop
     private Follower follower;
     private DcMotorEx shootMotor;
     private DcMotorEx intakeMotor;

@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @Autonomous(name="Auto settings")
 public class AutoSettings extends LinearOpMode {
+    // This is a linear opmode, which has a different format than the standard opMode.
     public void runOpMode() {
-        while (opModeInInit()) {
+        while (opModeInInit()) { // While we are in init, you can change the settings
+            // I feel like the rest of this is pretty self explanatory
             if (gamepad1.xWasPressed()) {
                 if (Storage.color == 1) {
                     Storage.color = -1;

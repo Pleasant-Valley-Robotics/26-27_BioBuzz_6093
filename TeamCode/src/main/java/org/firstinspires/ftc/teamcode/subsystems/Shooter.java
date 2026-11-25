@@ -20,6 +20,8 @@ import java.util.ArrayList;
 
 public class Shooter {
     private final DcMotorEx shootMotor;
+    // CRServo stands for Continuous Rotation Servo.
+    // Most of the functions are the same, but the way they are sent to the robot changes
     private final CRServo windmillServo;
     private final Servo light;
 
@@ -35,11 +37,15 @@ public class Shooter {
         shootMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shootMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         windmillServo.setDirection(DcMotorSimple.Direction.FORWARD);
+        // RUN_USING_ENCODER makes the motor send back feedback on how fast it's running
         shootMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Using that feedback, the robot will adjust to try to reach it's target velocity using PIDF coefficients
 
+        //PIDF is it's whole big thing, look it up if you wanna know more
         shootMotor.setVelocityPIDFCoefficients(90, 0.13, 0.5, 10.75);
     }
 
+    // This isn't used at all right now, but it was used when finding PIDF to update the motor every loop
     public void setPIDFCoefficients(double p, double i, double d, double f) {
         shootMotor.setVelocityPIDFCoefficients(p, i, d, f);
     }
@@ -47,8 +53,10 @@ public class Shooter {
         windmillServo.setPower(power);
     }
 
+
     public void setVelocity(int velocity) {
         shootMotor.setVelocity(velocity);
+        // We save our last velocity so that the light can have a target velocity to determine if we really are at speed or not
         lastVelocity = velocity;
     }
 
@@ -59,16 +67,17 @@ public class Shooter {
     public void updateLight(boolean active, boolean swapColor) {
         if (active) {
             if (lastVelocity < 0) {
-                light.setPosition(.7);
-            } else if (Math.abs(getVelocity() - lastVelocity) < 50) {
+                light.setPosition(.7); // This is like purple for backwards
+            } else if (Math.abs(getVelocity() - lastVelocity) < 50) { // If our velocity is within 50 tps of our target
                 if (swapColor) {
-                    light.setPosition(.3);
+                    light.setPosition(.3); // RED
                 } else {
-                    light.setPosition(0);
+                    // The secondary driver can choose to turn off lights altogether if they feel that other teams are playing defense based on the light
+                    light.setPosition(0); // power off
                 }
             }
         } else {
-            light.setPosition(0);
+            light.setPosition(0);  // power off
         }
     }
 
@@ -81,7 +90,7 @@ public class Shooter {
         return shootMotor.getVelocity();
     }
 
-
+    // Go to intake.java if you want an explanation on pedro pathing commands
     public Command updateLightC(boolean active, boolean swapColor) {
         return instant(() -> updateLight(active, swapColor));
     }
@@ -101,19 +110,19 @@ public class Shooter {
         return sequential(setVelocityC(0), windmillSetPowerC(0));
     }
 
-
+    // This function return a sequential command, which is basically a collection of other commands run one after another
     public Command shootC(int velocity, int shots) {
         return sequential(
                 setVelocityC(velocity),
 
-                waitMs(2500),
-                repeat(
+                waitMs(2500), // This is a built in pedro command that waits for us
+                repeat( // This repeats for an integer amount of times. it takes two commands: commandToRun, and then timesToRun
                         sequential(
                                 windmillSetPowerC(-0.15),
                                 waitMs(1150),
                                 windmillSetPowerC(0),
                                 waitMs(1300)
-                        ), shots
+                        ), shots // shots is the number of times to run
                 ),
                 stopC()
         );
